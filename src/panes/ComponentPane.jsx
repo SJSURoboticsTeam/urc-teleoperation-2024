@@ -21,7 +21,7 @@ export default function ComponentPane ({ style, state, onStateChange, onClose })
 
   const paneChoice = state && state.type && menuOptions[state.type] ? state.type : 'test'
   const InnerComponent = menuOptions[paneChoice]?.Component
-  const innerStyle = { position: 'absolute', left: 0, top: 0, bottom: 0, right: 0, overflowY: 'auto' }
+  const innerStyle = { position: 'absolute', left: 0, top: 0, bottom: 0, right: 0, overflowX: 'hidden', overflowY: 'hidden' }
 
   return (
     <Box
