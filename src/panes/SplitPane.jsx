@@ -31,7 +31,7 @@ function SplitDivider ({ direction, ...rest }) {
 }
 
 function Split ({ split, direction, onChange, style, children }) {
-  split = typeof(split) === 'undefined' ? 0.5 : split
+  split = typeof (split) === 'undefined' ? 0.5 : split
   const root = useRef()
   const pane1 = useRef()
   const pane2 = useRef()
@@ -41,7 +41,7 @@ function Split ({ split, direction, onChange, style, children }) {
     dragStartEvent.target.setPointerCapture(dragStartEvent.pointerId)
     let previousDragPos = null
     const handleMouseMove = e => {
-      if(direction === 'row') {
+      if (direction === 'row') {
         if (previousDragPos !== null) {
           split += (e.clientX - previousDragPos) / root.current.offsetWidth
         }
@@ -88,17 +88,19 @@ function Split ({ split, direction, onChange, style, children }) {
       style={style}
     >
       <Box
-        ref={pane1} 
-        style={{ flexGrow: split, position: 'relative' }}>
+        ref={pane1}
+        style={{ flexGrow: split, position: 'relative' }}
+      >
         {children[0]}
       </Box>
-      <SplitDivider 
-        direction={direction} 
+      <SplitDivider
+        direction={direction}
         onPointerDown={startDragging}
       />
-      <Box 
+      <Box
         ref={pane2}
-        style={{ flexGrow: 1 - split, position: 'relative' }}>
+        style={{ flexGrow: 1 - split, position: 'relative' }}
+      >
         {children[1]}
       </Box>
     </Stack>
@@ -112,7 +114,7 @@ export default function SplitPane ({ state, onStateChange, direction, style }) {
     <Split
       split={state?.split}
       direction={direction}
-      onChange={split => {onStateChange({...state, split})}}
+      onChange={split => { onStateChange({ ...state, split }) }}
       style={style}
     >
       <ComponentPane
