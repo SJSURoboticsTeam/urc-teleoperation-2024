@@ -46,21 +46,17 @@ export default function CameraPane () {
       }}
     >
       <img
-        style={{ ...imageStyle, maxHeight: '100%', maxWidth: '100%' }}
+        style={{ ...imageStyle, objectFit: 'contain' }}
         alt='Video Feed.'
         src={cameras[currentCamera].url}
         onContextMenu={handleClick}
       />
       <Menu
-        id='basic-menu'
         anchorPosition={anchorPosition}
         anchorReference='anchorPosition'
         open={open}
         onClose={handleClose}
         onChange={(e) => { setCurrentCamera(e.target.value) }}
-        MenuListProps={{
-          'aria-labelledby': 'basic-button'
-        }}
       >
         {cameras.map((camera, index) => (<MenuItem key={`${camera.name}-${index}`} onClick={() => { setCurrentCamera(index); setAnchorPosition(null) }}>{camera.name}</MenuItem>))}
       </Menu>
