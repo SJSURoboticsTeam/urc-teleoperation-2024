@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography'
 import Sidebar from './sidebar/Sidebar'
 import ComponentPane from './panes/ComponentPane'
 
-const drawerWidth = 600
+const drawerWidth = 700
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open'

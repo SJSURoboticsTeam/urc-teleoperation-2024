@@ -2,14 +2,15 @@ import { useState } from 'react'
 
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
+import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 
 import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
 
 const ThemedToggleButton = ({ label, tooltipText, isSelected, onChange }) => {
   return (
@@ -25,52 +26,155 @@ const ThemedToggleButton = ({ label, tooltipText, isSelected, onChange }) => {
   )
 }
 
-function ControllerListItem ({ controller, onEdit, onRemove, onToggleActive, onToggleDTR }) {
-  const isSerial = controller.type === 'Serial'
-  const statusText = isSerial ? `Endpoint: ${controller.endpoint}` : `System: ${controller.system}`
+function SerialListItem ({ controller, onEdit, onRemove }) {
+  const [name, setName] = useState(controller.name)
+  const [endpoint, setEndpoint] = useState(controller.endpoint)
+
+  const updateName = () => {
+    onEdit(controller.id, { name })
+  }
+
+  const updateEndpoint = () => {
+    onEdit(controller.id, { endpoint })
+  }
 
   return (
-    <ListItem>
-      <ListItemText primary={controller.name} secondary={statusText} />
-      <ListItemSecondaryAction>
-        {isSerial && (
+    <ListItem divider>
+      <Grid container spacing={2} alignItems='center'>
+        <Grid item xs={3}>
+          <TextField
+            variant='filled'
+            size='small'
+            sx={{ width: 'auto' }}
+            label='Name'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={updateName}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <TextField
+            variant='filled'
+            size='small'
+            sx={{ width: 'auto' }}
+            label='Endpoint'
+            value={endpoint}
+            onChange={(e) => setEndpoint(e.target.value)}
+            onBlur={updateEndpoint}
+          />
+        </Grid>
+        <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <ThemedToggleButton
             key={`${controller.id}-DTR-${controller.isDTR}`}
             label='DTR'
             tooltipText='Toggle DTR'
             isSelected={controller.isDTR}
-            onChange={() => onToggleDTR(controller.id)}
+            onChange={() => onEdit(controller.id, { isDTR: !controller.isDTR })}
           />
-        )}
-        <ThemedToggleButton
-          key={`${controller.id}-Active-${controller.isActive}`}
-          label='Active'
-          tooltipText='Toggle sending commands'
-          isSelected={controller.isActive}
-          onChange={() => onToggleActive(controller.id)}
-        />
-        <Button size='small' sx={{ minWidth: 'auto', padding: '6px', marginX: '4px' }} aria-label='edit' onClick={() => onEdit(controller.id)}>
-          <EditIcon />
-        </Button>
-        <Button size='small' sx={{ minWidth: 'auto', padding: '6px', marginX: '4px' }} aria-label='delete' onClick={() => onRemove(controller.id)}>
-          <DeleteIcon />
-        </Button>
-      </ListItemSecondaryAction>
+          <ThemedToggleButton
+            key={`${controller.id}-Active-${controller.isActive}`}
+            label='Active'
+            tooltipText='Toggle sending commands'
+            isSelected={controller.isActive}
+            onChange={() => onEdit(controller.id, { isActive: !controller.isActive })}
+          />
+          <Button
+            size='small'
+            sx={{ minWidth: 'auto', padding: '6px', marginX: '4px' }}
+            aria-label='delete'
+            onClick={() => onRemove(controller.id)}
+          >
+            <DeleteIcon />
+          </Button>
+        </Grid>
+      </Grid>
     </ListItem>
   )
 }
 
-function ControllerList ({ controllers, onEdit, onRemove, onConnect, onToggleActive }) {
+function GamepadListItem ({ controller, systemOptions, onEdit, onRemove }) {
+  const [name, setName] = useState(controller.name)
+  const [system, setSystem] = useState(controller.system)
+
+  const updateName = () => {
+    onEdit(controller.id, { name })
+  }
+
+  const updateSystem = () => {
+    onEdit(controller.id, { system })
+  }
+
+  return (
+    <ListItem divider>
+      <Grid container spacing={2} alignItems='center'>
+        <Grid item xs={3}>
+          <TextField
+            variant='filled'
+            size='small'
+            sx={{ width: 'auto' }}
+            label='Name'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={updateName}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <Select
+            variant='filled'
+            size='small'
+            sx={{ width: '100%' }}
+            value={system}
+            onChange={(e) => setSystem(e.target.value)}
+            onBlur={updateSystem}
+          >
+            {systemOptions.map((option) => (
+              <MenuItem key={option} value={option}>{option}</MenuItem>
+            ))}
+          </Select>
+        </Grid>
+        <Grid item xs={5} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <ThemedToggleButton
+            key={`${controller.id}-Active-${controller.isActive}`}
+            label='Active'
+            tooltipText='Toggle sending commands'
+            isSelected={controller.isActive}
+            onChange={() => onEdit(controller.id, { isActive: !controller.isActive })}
+          />
+          <Button
+            size='small'
+            sx={{ minWidth: 'auto', padding: '6px', marginX: '4px' }}
+            aria-label='delete'
+            onClick={() => onRemove(controller.id)}
+          >
+            <DeleteIcon />
+          </Button>
+        </Grid>
+      </Grid>
+    </ListItem>
+  )
+}
+
+function ControllerListItem ({ controller, systemOptions, onEdit, onRemove }) {
+  switch (controller.type) {
+    case 'Serial':
+      return <SerialListItem controller={controller} onEdit={onEdit} onRemove={onRemove} />
+    case 'Gamepad':
+      return <GamepadListItem controller={controller} systemOptions={systemOptions} onEdit={onEdit} onRemove={onRemove} />
+    default:
+      return null
+  }
+}
+
+function ControllerList ({ controllers, systemOptions, onEdit, onRemove }) {
   return (
     <List>
       {controllers.map((controller) => (
         <ControllerListItem
           key={controller.id}
           controller={controller}
+          systemOptions={systemOptions}
           onEdit={onEdit}
           onRemove={onRemove}
-          onConnect={onConnect}
-          onToggleActive={onToggleActive}
         />
       ))}
     </List>
@@ -84,25 +188,26 @@ export default function ControllersSidebar () {
     { id: 2, name: 'Serial 1', type: 'Serial', endpoint: '/drive', isDTR: false, isActive: false }
   ])
 
-  const handleEditController = (id) => { /* TODO */ }
-  const handleRemoveController = (id) => { /* TODO */ }
-  const handleToggleActive = (id) => {
+  const systemOptions = ['Drive', 'Arm', 'Science']
+
+  const handleEditController = (id, newValues) => {
     const updatedControllers = controllers.map(controller => {
       if (controller.id === id) {
-        return { ...controller, isActive: !controller.isActive }
+        return { ...controller, ...newValues }
       }
       return { ...controller }
     })
     setControllers(updatedControllers)
   }
+  const handleRemoveController = (id) => { /* TODO */ }
 
   return (
     <Box sx={{ width: 1, height: 1, position: 'relative' }}>
       <ControllerList
         controllers={controllers}
+        systemOptions={systemOptions}
         onEdit={handleEditController}
         onRemove={handleRemoveController}
-        onToggleActive={handleToggleActive}
       />
     </Box>
   )
