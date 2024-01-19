@@ -91,7 +91,7 @@ export class ArmInverseKinematicsSolver {
         //     rotation: QuaternionO.zeroRotation(),
         // };
 
-        this.hindArmAbsolutePosition = new Vector3(0, 0.261, 0.287).add(new Vector3(0, -1, 0));
+        this.hindArmAbsolutePosition = new Vector3(0, 0.261, 0.287);
         this.hindArmLength = 1.546;
         this.foreArmLength = 1.546;
         this.hindWristLength = 0.6;

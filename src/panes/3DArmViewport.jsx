@@ -45,101 +45,56 @@ function findThreeSubobject(object /* : Object3D */, key /* :string */) /* : Obj
 }
 
 export function ArmModel({ rotunda, elbow, shoulder, wristRoll, wristPitch, effectorPosition } /* : ArmState */) {
-    const { scene } = useLoader(GLTFLoader, "/models/arm.glb");
-    const copiedScene = useMemo(() => scene.clone(true), [scene])
-    // console.log(copiedScene);
-    const rotundaRef = useRef(new Object3D());
-    const shoulderRef = useRef(new Object3D());
-    const elbowRef = useRef(new Object3D());
-    const wristPitchRef = useRef(new Object3D());
-    const wristRollRef = useRef(new Object3D());
+    const gltf = useLoader(GLTFLoader, "/models/arm.glb");
+    const scene = useMemo(() => gltf.scene.clone(true), [gltf]);
 
-    const rightLinkage1Ref = useRef(new Object3D());
-    const rightLinkage2Ref = useRef(new Object3D());
-    const rightLinkage3Ref = useRef(new Object3D());
-    const rightLinkage4Ref = useRef(new Object3D());
-    const rightLinkageEndReferenceRef = useRef(new Object3D());
+    const rotundaObj = useMemo(() => findThreeSubobject(scene, "Rotunda") ?? new Object3D(), [scene]);
+    const shoulderObj = useMemo(() => findThreeSubobject(rotundaObj, "Shoulder") ?? new Object3D(), [rotundaObj]);
+    const elbowObj = useMemo(() => findThreeSubobject(shoulderObj, "Elbow") ?? new Object3D(), [shoulderObj]);
+    const wristPitchObj = useMemo(() => findThreeSubobject(elbowObj, "WristPitch") ?? new Object3D(), [elbowObj]);
+    const wristRollObj = useMemo(() => findThreeSubobject(wristPitchObj, "WristRoll") ?? new Object3D(), [wristPitchObj]);
 
-    const leftLinkage1Ref = useRef(new Object3D());
-    const leftLinkage2Ref = useRef(new Object3D());
-    const leftLinkage3Ref = useRef(new Object3D());
-    const leftLinkage4Ref = useRef(new Object3D());
-    const leftLinkageEndReferenceRef = useRef(new Object3D());
+    const rightLinkage1Obj = useMemo(() => findThreeSubobject(wristRollObj, "Right_Linkage_1") ?? new Object3D(), [wristRollObj]);
+    const rightLinkage2Obj = useMemo(() => findThreeSubobject(rightLinkage1Obj, "Right_Linkage_2") ?? new Object3D(), [rightLinkage1Obj]);
+    const rightLinkage3Obj = useMemo(() => findThreeSubobject(rightLinkage2Obj, "Right_Linkage_3") ?? new Object3D(), [rightLinkage2Obj]);
+    const rightLinkage4Obj = useMemo(() => findThreeSubobject(rightLinkage3Obj, "Right_Linkage_4") ?? new Object3D(), [rightLinkage3Obj]);
+    const rightLinkageEndReferenceObj = useMemo(() => findThreeSubobject(rightLinkage1Obj, "Right_Linkage_End_Reference") ?? new Object3D(), [rightLinkage1Obj]);
 
-    const fourBarSolverRef = useRef(createFourbarLinkageSolver(0,0,0,0,0));
+    const leftLinkage1Obj = useMemo(() => findThreeSubobject(wristRollObj, "Left_Linkage_1") ?? new Object3D(), [wristRollObj]);
+    const leftLinkage2Obj = useMemo(() => findThreeSubobject(leftLinkage1Obj, "Left_Linkage_2") ?? new Object3D(), [leftLinkage1Obj]);
+    const leftLinkage3Obj = useMemo(() => findThreeSubobject(leftLinkage2Obj, "Left_Linkage_3") ?? new Object3D(), [leftLinkage2Obj]);
+    // const leftLinkage4Obj = useMemo(() => findThreeSubobject(leftLinkage3Obj, "Left_Linkage_4") ?? new Object3D(), [leftLinkage3Obj]);
+    // const leftLinkageEndReferenceObj = useMemo(() => findThreeSubobject(leftLinkage1Obj, "Left_Linkage_End_Reference") ?? new Object3D(), [leftLinkage1Obj]);
 
-    useEffect(() => {
+    const fourBarSolver = useMemo(() => {
+        const a = rightLinkage2Obj.position.length();
+        const b = rightLinkage3Obj.position.length();
+        const c = rightLinkage4Obj.position.length();
+        const d = rightLinkageEndReferenceObj.position.length();
 
-        rotundaRef.current = findThreeSubobject(copiedScene, "Base") ?? new Object3D();
-        shoulderRef.current = findThreeSubobject(rotundaRef.current, "Hind_Arm") ?? new Object3D();
-        elbowRef.current = findThreeSubobject(shoulderRef.current, "Fore_Arm") ?? new Object3D();
-        wristPitchRef.current = findThreeSubobject(elbowRef.current, "Upper_Wrist") ?? new Object3D();
-        wristRollRef.current = findThreeSubobject(wristPitchRef.current, "Lower_Wrist") ?? new Object3D();
-    
-        rotundaRef.current.position.set(0,-1,0);
-        rotundaRef.current.scale.set(1, 1, 1);
-
-        rightLinkage1Ref.current = findThreeSubobject(wristRollRef.current, "Right_Linkage") ?? new Object3D();
-        rightLinkage2Ref.current = findThreeSubobject(rightLinkage1Ref.current, "Right_Linkage_2") ?? new Object3D();
-        rightLinkage3Ref.current = findThreeSubobject(rightLinkage2Ref.current, "Right_Linkage_3") ?? new Object3D();
-        rightLinkage4Ref.current = findThreeSubobject(rightLinkage3Ref.current, "Right_Linkage_4") ?? new Object3D();
-        rightLinkageEndReferenceRef.current = findThreeSubobject(rightLinkage1Ref.current, "Right_Linkage_End_Reference") ?? new Object3D();
-
-        leftLinkage1Ref.current = findThreeSubobject(wristRollRef.current, "Left_Linkage_1") ?? new Object3D();
-        leftLinkage2Ref.current = findThreeSubobject(leftLinkage1Ref.current, "Left_Linkage_2") ?? new Object3D();
-        leftLinkage3Ref.current = findThreeSubobject(leftLinkage2Ref.current, "Left_Linkage_3") ?? new Object3D();
-        leftLinkage4Ref.current = findThreeSubobject(leftLinkage3Ref.current, "Left_Linkage_4") ?? new Object3D();
-        leftLinkageEndReferenceRef.current = findThreeSubobject(leftLinkage1Ref.current, "Left_Linkage_End_Reference") ?? new Object3D();
-
-        console.log(rightLinkage1Ref.current);
-        console.log(rightLinkage2Ref.current);
-        console.log(rightLinkage3Ref.current);
-        console.log(rightLinkage4Ref.current);
-        console.log(rightLinkageEndReferenceRef.current);
-
-        const a = rightLinkage2Ref.current.position.length();
-        const b = rightLinkage3Ref.current.position.length();
-
-        const c = rightLinkage4Ref.current.position.length();
-        const d = rightLinkageEndReferenceRef.current.position.length();
+        const diagonal = rightLinkageEndReferenceObj.position.clone().sub(rightLinkage2Obj.position).length();
         
-        const diagonal = rightLinkageEndReferenceRef.current.position.clone().sub(rightLinkage2Ref.current.position).length();
+        return createFourbarLinkageSolver(a, b, c, d, diagonal);
+    }, [ rightLinkage2Obj, rightLinkage3Obj, rightLinkage4Obj, rightLinkageEndReferenceObj ]);
 
-        console.log(a, b, c, d, diagonal);
-        fourBarSolverRef.current = createFourbarLinkageSolver(a, b, c, d, diagonal);
-        const result = fourBarSolverRef.current(Math.PI);
-        console.log(result);
-        console.log(result[0] + result[1] + result[2] + result[3])
+    rotundaObj.setRotationFromAxisAngle(new Vector3(0, 1, 0), rotunda);
+    shoulderObj.setRotationFromAxisAngle(new Vector3(1, 0, 0), shoulder);
+    elbowObj.setRotationFromAxisAngle(new Vector3(1, 0, 0), elbow);
+    wristPitchObj.setRotationFromAxisAngle(new Vector3(1, 0, 0), wristPitch);
+    wristRollObj.setRotationFromAxisAngle(new Vector3(0, 0, 1), wristRoll);
 
-        // console.log(rightLinkage1Ref.current.position.clone().sub(rightLinkage2Ref.current.position).length());
-        // console.log(rightLinkage2Ref.current.position.clone().sub(rightLinkage3Ref.current.position).length());
-        // console.log(rightLinkage3Ref.current.position.clone().sub(rightLinkage4Ref.current.position).length());
-        // // console.log(rightLinkage4Ref.current.position.clone().sub(rightLinkageRef.current.position).length());
-        // console.log(rightLinkageEndReferenceRef.current.position.clone().sub(rightLinkage1Ref.current.position).length());
-
-        return () => {
-
-        }
-    }, [copiedScene]);
-
-    rotundaRef.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), rotunda);
-    shoulderRef.current.setRotationFromAxisAngle(new Vector3(1, 0, 0), shoulder);
-    elbowRef.current.setRotationFromAxisAngle(new Vector3(1, 0, 0), elbow);
-    wristPitchRef.current.setRotationFromAxisAngle(new Vector3(1, 0, 0), wristPitch);
-    wristRollRef.current.setRotationFromAxisAngle(new Vector3(0, 0, 1), wristRoll);
-
-    const linkageAngles = fourBarSolverRef.current(effectorPosition);
+    const linkageAngles = fourBarSolver(effectorPosition);
     // console.log(linkageAngles);
     // console.log(linkageAngles[0] + linkageAngles[1] + linkageAngles[2] + linkageAngles[3])
-    rightLinkage1Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[0]);
-    rightLinkage2Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[1]);
-    rightLinkage3Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[2]);
-    leftLinkage1Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[0]);
-    leftLinkage2Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[1]);
-    leftLinkage3Ref.current.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[2]);
+    rightLinkage1Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[0]);
+    rightLinkage2Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[1]);
+    rightLinkage3Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), linkageAngles[2]);
+    leftLinkage1Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[0]);
+    leftLinkage2Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[1]);
+    leftLinkage3Obj.setRotationFromAxisAngle(new Vector3(0, 1, 0), -linkageAngles[2]);
 
     // eslint-disable-next-line react/no-unknown-property
-    return <primitive object={copiedScene}/>
+    return <primitive object={rotundaObj}/>
 }
 
 function FollowingLight({ color, intensity, position } /* : { color?:ColorRepresentation, intensity?:number, position?:Vector3Tuple } */) {
