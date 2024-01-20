@@ -2,6 +2,7 @@ import CameraPane from './CameraPane'
 import ManualInputPane from './ManualInput'
 import TestComponent from './TestComponent'
 import SplitPane from './SplitPane'
+import StatusPane from './StatusPane'
 
 const panes = {
   test: { title: 'Test', Component: TestComponent },

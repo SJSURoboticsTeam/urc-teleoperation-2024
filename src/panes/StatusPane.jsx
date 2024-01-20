@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import FormControl from '@mui/material/FormControl'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
 
 function ArmStatus () {
   const armStatus = {
@@ -29,8 +25,8 @@ function ArmStatus () {
 function DriveStatus () {
   const driveStatus = {
     mode: 'drive',
-    speed: 0,
-    angle: 0
+    speed: 36,
+    angle: 90
   }
 
   return (
