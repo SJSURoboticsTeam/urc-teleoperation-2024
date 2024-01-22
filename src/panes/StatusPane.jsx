@@ -3,6 +3,8 @@ import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import Typography from '@mui/material/Typography'
+import Paper from '@mui/material/Paper'
 
 function ArmStatus () {
   const armStatus = {
@@ -17,7 +19,9 @@ function ArmStatus () {
 
   return (
     <Box>
-      <pre>{JSON.stringify(armStatus, null, 2)}</pre>
+        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+          {JSON.stringify(armStatus, null, 2)}
+        </Typography>
     </Box>
   )
 }
