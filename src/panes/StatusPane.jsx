@@ -19,9 +19,9 @@ function ArmStatus () {
 
   return (
     <Box>
-        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-          {JSON.stringify(armStatus, null, 2)}
-        </Typography>
+      <Typography variant='body1' sx={{ whiteSpace: 'pre-wrap' }}>
+        {JSON.stringify(armStatus, null, 2)}
+      </Typography>
     </Box>
   )
 }
