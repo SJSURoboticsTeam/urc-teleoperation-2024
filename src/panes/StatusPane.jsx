@@ -4,7 +4,6 @@ import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
 
 function ArmStatus () {
   const armStatus = {
@@ -18,7 +17,7 @@ function ArmStatus () {
   }
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
         <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
           {JSON.stringify(armStatus, null, 2)}
         </Typography>
@@ -34,8 +33,10 @@ function DriveStatus () {
   }
 
   return (
-    <Box>
-      <pre>{JSON.stringify(driveStatus, null, 2)}</pre>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
+      <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+          {JSON.stringify(driveStatus, null, 2)}
+      </Typography>
     </Box>
   )
 }
