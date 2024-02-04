@@ -13,6 +13,8 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+
 function TooltipButton ({ onClick, tooltipTitle, children, sx }) {
   return (
     <Tooltip title={tooltipTitle}>
@@ -186,12 +188,43 @@ function DriveManualInput () {
   )
 }
 
+function ScienceManualInput () {
+  const scienceDefault = {
+    play: true,
+    eStop: false,
+    samplesReceived: false
+  }
+
+  const [scienceValues, setScienceValues] = useState(scienceDefault)
+
+  const handleToggle = (toggleName) => (e) => {
+    e.preventDefault()
+    setScienceValues(prevValues => ({
+      ...prevValues,
+      [toggleName]: !prevValues[toggleName]
+    }))
+  }
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 15, height: '90vh' }}>
+      <Button value={scienceValues.play} variant='contained' color='primary' size='large' startIcon={<PlayArrowIcon />} onClick={handleToggle('play')}>
+        {scienceValues.play ? 'Paused' : 'Playing'}
+      </Button>
+
+      <Button value={scienceValues.eStop} variant='contained' color='warning' style={{ width: 500, height: 300 }} onClick={handleToggle('eStop')}>
+        {scienceValues.eStop ? 'Emergency Stopped' : 'Emergency Stop'}
+      </Button>
+    </Box>
+  )
+}
+
 export default function ManualInputPane ({ style }) {
   const [activeTab, setActiveTab] = useState(0)
 
   const tabConfig = [
     { label: 'Arm', Component: ArmManualInput },
-    { label: 'Drive', Component: DriveManualInput }
+    { label: 'Drive', Component: DriveManualInput },
+    { label: 'Science', Component: ScienceManualInput }
   ]
 
   const handleChangeTab = (event, newValue) => {
