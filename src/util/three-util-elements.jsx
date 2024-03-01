@@ -32,6 +32,13 @@ export function SelectableBackground() {
 
     return <Environment files={`/env/${background}.hdr`} blur={blur} background={showBackground} />;
 }
+export function Background() {
+    const background = "cyclorama_2k";
+    const blur = 0;
+    const showBackground = false
+
+    return <Environment files={`/env/${background}.hdr`} blur={blur} background={showBackground} />;
+}
 
 /**
  * Loading animation

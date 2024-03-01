@@ -1,10 +1,14 @@
-import { createFourbarLinkageSolver } from "../inverse-kinematics";
-import { lawOfCosinesAngle, lawOfCosinesSide } from "../math";
+
 import { Axis, useClonedGLTF, useThreeSubobject } from "../three-util";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 // import { Object3D } from "three";
 
-function useMountPoint(mountPoint /* : Object3D */, mounted /* : Object3D */) {
+/**
+ * Parent an object to another object, "Mounting it"
+ * @param {Object3D} mountPoint 
+ * @param {Object3D} mounted 
+ */
+export function useMountPoint(mountPoint /* : Object3D */, mounted /* : Object3D */) {
     useEffect(() => {
         mountPoint.add(mounted);
         return () => {
@@ -13,7 +17,18 @@ function useMountPoint(mountPoint /* : Object3D */, mounted /* : Object3D */) {
     }, [mountPoint, mounted]);
 }
 
-export function useChassi() {
+/**
+ * 
+ * @returns {[
+ *      Object3D,
+*      Object3D,
+*      Object3D,
+*      Object3D,
+*      Object3D,
+*      Object3D,
+ * ]} Chassi, suspension mount point fr, suspension mount point fl, suspension mount point b, rotunda mount point and science mount point
+ */
+export function useChassiModel() {
     const [ chassi, materials ] = useClonedGLTF("/models/Chassi-High-Quality.glb");
 
     const suspensionMountPointFR = useThreeSubobject(chassi, "Suspension_Mount_Point_FR");
@@ -34,8 +49,14 @@ export function useChassi() {
     ];
 }
 
-export function useSuspension(mountPoint /* : Object3D */, angle/*  : number */) {
-    const [ suspension, materials ] = useClonedGLTF("/models/Suspension-High-Quality.glb");
+/**
+ * 
+ * @param {Object3D} mountPoint Mount point
+ * @param {number} angle Suspsension angle 
+ * @returns {[ Object3D, Object3D]} Suspension model and wheel mount point
+ */
+export function useSuspensionModel(mountPoint /* : Object3D */, angle/*  : number */) {
+    const [ suspension, materials ] = useClonedGLTF("/models/Suspension2-High-Quality.glb");
     
     useMountPoint(mountPoint, suspension);
 
@@ -46,57 +67,57 @@ export function useSuspension(mountPoint /* : Object3D */, angle/*  : number */)
     const shockUpper = useThreeSubobject(suspension, "Upper_Shock_Joint");
     const shockLower = useThreeSubobject(lowerSuspension, "Lower_Shock_Joint");
 
-    const shockSolve = useMemo(() => {
-        const shockUpperAngleWithLinkage = Math.atan((shockUpper.position.z - lowerSuspension.position.z) / (shockUpper.position.y - lowerSuspension.position.y));
-        const shockLowerAngleWithLinkage = Math.atan2(shockLower.position.y, shockLower.position.z);
-        const shockLowerAngleWithLinkageCompliment = Math.PI/2 - shockLowerAngleWithLinkage;
-        const a = shockUpper.position.clone().sub(lowerSuspension.position).length();
-        const b = shockLower.position.length();
-        console.log(shockLowerAngleWithLinkage, a, b, shockUpperAngleWithLinkage);
+    // const shockSolve = useMemo(() => {
+    //     const shockUpperAngleWithLinkage = Math.atan((shockUpper.position.z - lowerSuspension.position.z) / (shockUpper.position.y - lowerSuspension.position.y));
+    //     const shockLowerAngleWithLinkage = Math.atan2(shockLower.position.y, shockLower.position.z);
+    //     const shockLowerAngleWithLinkageCompliment = Math.PI/2 - shockLowerAngleWithLinkage;
+    //     const a = shockUpper.position.clone().sub(lowerSuspension.position).length();
+    //     const b = shockLower.position.length();
+    //     console.log(shockLowerAngleWithLinkage, a, b, shockUpperAngleWithLinkage);
     
-        return (theta /* : number */) => {
-            const c = lawOfCosinesSide(Math.PI/2 + theta - shockLowerAngleWithLinkage - shockUpperAngleWithLinkage, a, b);
-            const upperShockAngle = lawOfCosinesAngle(b, a, c);
-            const lowerShockAngle = lawOfCosinesAngle(a, b, c);
+    //     return (theta /* : number */) => {
+    //         const c = lawOfCosinesSide(Math.PI/2 + theta - shockLowerAngleWithLinkage - shockUpperAngleWithLinkage, a, b);
+    //         const upperShockAngle = lawOfCosinesAngle(b, a, c);
+    //         const lowerShockAngle = lawOfCosinesAngle(a, b, c);
 
-            return [
-                upperShockAngle - shockUpperAngleWithLinkage,
-                // 0,
-                Math.PI - (lowerShockAngle + shockLowerAngleWithLinkageCompliment),
-            ];
-        };
-    }, [ shockUpper, shockLower, lowerSuspension ]);
+    //         return [
+    //             upperShockAngle - shockUpperAngleWithLinkage,
+    //             // 0,
+    //             Math.PI - (lowerShockAngle + shockLowerAngleWithLinkageCompliment),
+    //         ];
+    //     };
+    // }, [ shockUpper, shockLower, lowerSuspension ]);
 
-    const linkageSolve =  useMemo(() => {
-        const a = upperSuspension.position.clone().sub(lowerSuspension.position).length();
-        const b = upperSuspensionSocket.position.length();
-        const c = 0.064; // From Wheel
-        const d = wheelMountPoint.position.length();
+    // const linkageSolve =  useMemo(() => {
+    //     const a = upperSuspension.position.clone().sub(lowerSuspension.position).length();
+    //     const b = upperSuspensionSocket.position.length();
+    //     const c = 0.064; // From Wheel
+    //     const d = wheelMountPoint.position.length();
         
-        const initialAngle = Math.PI / 2;
+    //     const initialAngle = Math.PI / 2;
         
-        const solve = createFourbarLinkageSolver(a, b, c, d);
+    //     const solve = createFourbarLinkageSolver(a, b, c, d);
 
-        return (theta /* : number */) => {
-            const [ a, b, c, d ] = solve(-theta + initialAngle);
-            return [
-                theta,
-                b - Math.PI/2,
-                c,
-                d - Math.PI/2,
-            ]
-        }
-    }, [ upperSuspension, lowerSuspension, upperSuspensionSocket, wheelMountPoint ]);
+    //     return (theta /* : number */) => {
+    //         const [ a, b, c, d ] = solve(-theta + initialAngle);
+    //         return [
+    //             theta,
+    //             b - Math.PI/2,
+    //             c,
+    //             d - Math.PI/2,
+    //         ]
+    //     }
+    // }, [ upperSuspension, lowerSuspension, upperSuspensionSocket, wheelMountPoint ]);
     
-    const linkages = linkageSolve(angle);
+    // const linkages = linkageSolve(angle);
     
-    lowerSuspension.setRotationFromAxisAngle(Axis.pitch, angle);
-    upperSuspension.setRotationFromAxisAngle(Axis.pitch, angle);
-    wheelMountPoint.setRotationFromAxisAngle(Axis.pitch, -linkages[3]);
+    // lowerSuspension.setRotationFromAxisAngle(Axis.pitch, angle);
+    // upperSuspension.setRotationFromAxisAngle(Axis.pitch, angle);
+    // wheelMountPoint.setRotationFromAxisAngle(Axis.pitch, -linkages[3]);
 
-    const [ upperShockAngle, lowerShockAngle ] = shockSolve(angle);
-    shockUpper.setRotationFromAxisAngle(Axis.pitch, Math.PI/2-upperShockAngle);
-    shockLower.setRotationFromAxisAngle(Axis.pitch, -lowerShockAngle);
+    // const [ upperShockAngle, lowerShockAngle ] = shockSolve(angle);
+    // shockUpper.setRotationFromAxisAngle(Axis.pitch, Math.PI/2-upperShockAngle);
+    // shockLower.setRotationFromAxisAngle(Axis.pitch, -lowerShockAngle);
     
     return [
         suspension,
@@ -104,13 +125,34 @@ export function useSuspension(mountPoint /* : Object3D */, angle/*  : number */)
     ];
 }
 
-export function useWheel(mountPoint/* : Object3D */, offset /* : number */, angle /* : number */) {
-    const [ wheel, materials ] = useClonedGLTF("/models/Wheel-High-Quality.glb");
+/**
+ * 
+ * @param {Object3D} mountPoint 
+ * @param {number} offset 
+ * @param {number} angle 
+ * @returns {{
+ *      wheel: Object3D,
+ *      materials: Material[],
+ *      motors: {
+ *          steering: Object3D,
+ *          propulsion: Object3D
+ *      }
+ * }} Wheel and motors
+ */
+export function useWheelModel(mountPoint/* : Object3D */, offset /* : number */, angle /* : number */) {
+    const [ wheel, materials ] = useClonedGLTF("/models/Wheel2-High-Quality.glb");
     useMountPoint(mountPoint, wheel);
 
     const steeringAxis = useThreeSubobject(wheel, "Steering_Axis");
 
     steeringAxis.setRotationFromAxisAngle(Axis.yaw, offset + angle);
 
-    return [ wheel ];
+    return { 
+        wheel, 
+        materials,
+        motors: {
+            steering: useThreeSubobject(wheel, "Steering_Motor"),
+            propulsion: useThreeSubobject(steeringAxis, "Propulsion_Motor"),
+        }
+    };
 }
