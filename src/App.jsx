@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { styled, useTheme } from '@mui/material/styles'
+import { CommandContext } from './contexts/CommandContext'
 
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -36,6 +37,7 @@ export default function App () {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
   const [rootPane, setRootPane] = useState({ type: 'test' })
+  const [commands, setCommands] = useState({ arm:{}, drive:{}, autonomy:{}, science:{} })
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -69,7 +71,12 @@ export default function App () {
           flexDirection: 'column'
         }}
       >
-        <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
+        <CommandContext 
+          commands={commands}
+          setCommands={setCommands}
+        >
+          <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
+        </CommandContext>
       </Box>
     </Box>
   )

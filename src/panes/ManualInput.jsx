@@ -14,6 +14,7 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import { useCommands } from '../contexts/CommandContext'
 
 function TooltipButton ({ onClick, tooltipTitle, children, sx }) {
   return (
@@ -128,6 +129,7 @@ function ArmManualInput () {
 }
 
 function DriveManualInput () {
+  const [,setCommands] = useCommands()
   const defaults = {
     mode: 'drive',
     speed: 0,
@@ -141,19 +143,19 @@ function DriveManualInput () {
   const [driveParams, setDriveParams] = useState(defaults)
 
   const handleParamChange = (paramName) => (newValue) => {
+    // setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
     setDriveParams(prevParams => ({
       ...prevParams,
       [paramName]: newValue
     }))
   }
 
+  // setCommands(commands.drive)
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      // TODO: connect to command server, drive endpoint
-      console.log('Sending drive values to backend:', { ...driveParams })
-    }, 100)
-    return () => clearInterval(interval)
-  }, [])
+    console.log(driveParams)
+    setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
+  }, [setCommands, driveParams])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
