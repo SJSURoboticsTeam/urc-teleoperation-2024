@@ -23,7 +23,7 @@ export default function WifiPane ({ style }) {
         async function writeCommands() {
             if (isConnected) {
                 try {
-                    const responseStatus = await axios.post(serverAddress, commands) //commands no worky
+                    const responseStatus = await axios.post(serverAddress, commands)
                     setStatus(responseStatus.data)
                 }
                 catch (error) {
@@ -41,7 +41,7 @@ export default function WifiPane ({ style }) {
                 }
             }, 200)
             return () => clearInterval(writeInterval)
-        }, [isConnected])
+        }, [isConnected, commands])
 
   return (
     <Box
