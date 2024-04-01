@@ -37,7 +37,12 @@ export default function App () {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
   const [rootPane, setRootPane] = useState({ type: 'test' })
-  const [commands, setCommands] = useState({ arm:{}, drive:{}, autonomy:{}, science:{} })
+  const [commands, setCommands] = useState({ 
+      arm:{"speed":0,"rotunda":0,"elbow":0,"shoulder":0,"wristPitch":0,"wristRoll":0,"endEffector":0},
+      drive:{"mode":"drive","speed":0,"angle":0},
+      autonomy:{}, 
+      science:{"play":true,"eStop":false,"samplesReceived":false} 
+    })
 
   return (
     <Box sx={{ display: 'flex' }}>

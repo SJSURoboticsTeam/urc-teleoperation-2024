@@ -11,11 +11,8 @@ const defaultResponse = {
     "is_operational": 0
 };
 
-let gpsCommands = defaultResponse;
-let armCommands = defaultResponse;
-let driveCommands = defaultResponse;
-let scienceCommands = defaultResponse;
-let autonomyCommands = defaultResponse;
+let commands = defaultResponse;
+let commandsStatus = defaultResponse;
 
 let gpsStatus = defaultResponse;
 let armStatus = defaultResponse;
@@ -29,17 +26,29 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
     res.send("Mission Control Web Server - Built using ExpressJS");
+})
+
+app.get("/commands", (req, res) => {
+    commandsStatus = (req.query);
+    console.log("GET /commands");
+    res.send(commands);
 });
+
+app.post("/commands", (req, res) => {
+    commands = (req.body);
+    console.log("POST /commands", commands);
+    res.send(commandsStatus);
+})
 
 app.get("/drive", (req, res) => {
     driveStatus = (req.query);
     console.log("GET /drive");
-    res.send(driveCommands);
+    res.send(commands.drive);
 });
 
 app.post("/drive", (req, res) => {
-    driveCommands = (req.body);
-    console.log("POST /drive", driveCommands);
+    commands.drive = (req.body);
+    console.log("POST /drive", commands.drive);
     res.send(driveStatus);
 });
 
@@ -51,12 +60,12 @@ app.get("/drive/status", (req, res) => {
 app.get("/arm", (req, res) => {
     armStatus = (req.query);
     console.log("GET /arm");
-    res.send(armCommands);
+    res.send(commands.arm);
 });
 
 app.post("/arm", (req, res) => {
-    armCommands = (req.body);
-    console.log("POST /arm", armCommands);
+    commands.arm = (req.body);
+    console.log("POST /arm", commands.arm);
     res.send(armStatus);
 });
 
@@ -68,11 +77,11 @@ app.get("/arm/status", (req, res) => {
 app.get("/gps", (req, res) => {
     console.log("GET /gps");
     gpsStatus = req.query;
-    res.send(gpsCommands);
+    res.send(commands.gps);
 });
 
 app.post("/gps", (req, res) => {
-    gpsCommands = req.body;
+    commands.gps = req.body;
     console.log("POST /gps");
     res.send(gpsStatus);
 });
@@ -85,11 +94,11 @@ app.get("/gps/status", (req, res) => {
 app.get("/science", (req, res) => {
     console.log("GET /science");
     scienceStatus = req.query;
-    res.send(scienceCommands);
+    res.send(commands.science);
 })
 
 app.post("/science", (req, res) => {
-    scienceCommands = (req.body);
+    commands.science = (req.body);
     console.log("POST /science");
     res.send(autonomyStatus);
 })
@@ -102,11 +111,11 @@ app.get("/science/status", (req, res) => {
 app.get("/autonomy", (req, res) => {
     console.log("GET /autonomy");
     autonomyStatus = req.query;
-    res.send(autonomyCommands);
+    res.send(commands.autonomy);
 })
 
 app.post("/autonomy", (req, res) => {
-    autonomyCommands = (req.body);
+    commands.autonomy = (req.body);
     console.log("POST /autonomy");
     res.send(autonomyStatus);
 })

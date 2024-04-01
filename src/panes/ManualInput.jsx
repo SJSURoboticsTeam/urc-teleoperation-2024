@@ -103,14 +103,6 @@ function ArmManualInput () {
     setControlValues(initialControlValues)
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     // TODO: connect to command server, arm endpoint
-  //     console.log('Sending values to backend:', controlValues)
-  //   }, 100)
-  //   return () => clearInterval(interval)
-  // }, [])
-
   useEffect(() => {
     console.log(controlValues)
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, arm:{...controlValues}}))})
@@ -149,14 +141,11 @@ function DriveManualInput () {
   const [driveParams, setDriveParams] = useState(defaults)
 
   const handleParamChange = (paramName) => (newValue) => {
-    // setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
     setDriveParams(prevParams => ({
       ...prevParams,
       [paramName]: newValue
     }))
   }
-
-  // setCommands(commands.drive)
 
   useEffect(() => {
     console.log(driveParams)
