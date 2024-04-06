@@ -47,6 +47,10 @@ export default function App () {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <CommandContext 
+          commands={commands}
+          setCommands={setCommands}
+        >
       <Sidebar theme={theme} open={open} width={drawerWidth} handleDrawerClose={() => { setOpen(false) }} />
       <AppBar position='fixed' open={open}>
         <Toolbar>
@@ -76,13 +80,9 @@ export default function App () {
           flexDirection: 'column'
         }}
       >
-        <CommandContext 
-          commands={commands}
-          setCommands={setCommands}
-        >
           <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
-        </CommandContext>
       </Box>
+      </CommandContext>
     </Box>
   )
 }
