@@ -113,7 +113,7 @@ function ArmManualInput () {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {controlConfigs.map(control => (
         <NumericValueAdjuster
-          key={control.name}
+          key={`${control.name}-${controlValues[control.name]}`}
           label={control.label}
           value={controlValues[control.name]}
           onValueChange={handleControlChange(control.name)}
@@ -170,6 +170,7 @@ function DriveManualInput () {
         ))}
       </Box>
       <NumericValueAdjuster
+        key={`speed-${driveParams.speed}`} 
         label='Speed'
         value={driveParams.speed}
         onValueChange={handleParamChange('speed')}
@@ -177,6 +178,7 @@ function DriveManualInput () {
         max={100}
       />
       <NumericValueAdjuster
+        key={`angle-${driveParams.angle}`} 
         label='Angle'
         value={driveParams.angle}
         onValueChange={handleParamChange('angle')}
