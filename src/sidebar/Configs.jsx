@@ -49,8 +49,6 @@ export default function Configs () {
     <Box sx={{ width: 1, height: 1, position: 'relative' }}>
         {isConnected ? <Button className='btn btn__danger' onClick={disconnect}>Disconnect</Button>
                 : <Button className='btn btn__primary' onClick={connect}>Connect</Button>}
-      {/* {isConnected ? <Button className='btn btn__danger' onClick={disconnect}>Disconnect</Button>
-                : <Button className='btn btn__primary' onClick={connect}>Connect</Button>} */}
       <Input fullWidth helperText='Enter server ip' autoComplete='off' className='input-text' type='text' value={serverAddress} onChange={e => setServerAddress(e.target.value)} />
     </Box>
   )
