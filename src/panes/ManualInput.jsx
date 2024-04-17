@@ -104,7 +104,6 @@ function ArmManualInput () {
   }
 
   useEffect(() => {
-    console.log(controlValues)
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, arm:{...controlValues}}))})
   }, [setCommands, controlValues])
 
@@ -148,7 +147,6 @@ function DriveManualInput () {
   }
 
   useEffect(() => {
-    console.log(driveParams)
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
   }, [setCommands, driveParams])
 
@@ -206,7 +204,6 @@ function ScienceManualInput () {
   }
 
   useEffect(() => {
-    console.log(scienceValues)
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, science:{...scienceValues}}))})
   }, [setCommands, scienceValues])
 
