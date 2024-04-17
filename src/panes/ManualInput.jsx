@@ -112,7 +112,7 @@ function ArmManualInput () {
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {controlConfigs.map(control => (
         <NumericValueAdjuster
-          key={control.name}
+          key={`${control.name}-${controlValues[control.name]}`}
           label={control.label}
           value={controlValues[control.name]}
           onValueChange={handleControlChange(control.name)}
@@ -167,6 +167,7 @@ function DriveManualInput () {
         ))}
       </Box>
       <NumericValueAdjuster
+        key={`speed-${driveParams.speed}`} 
         label='Speed'
         value={driveParams.speed}
         onValueChange={handleParamChange('speed')}
@@ -174,6 +175,7 @@ function DriveManualInput () {
         max={100}
       />
       <NumericValueAdjuster
+        key={`angle-${driveParams.angle}`} 
         label='Angle'
         value={driveParams.angle}
         onValueChange={handleParamChange('angle')}
@@ -210,11 +212,11 @@ function ScienceManualInput () {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 15, height: '90vh' }}>
-      <Button value={scienceValues.play} variant='contained' color='primary' size='large' startIcon={<PlayArrowIcon />} onClick={handleToggle('play')}>
+      <Button value={scienceValues.play} variant='contained' color={scienceValues.play ? 'warning' : 'primary'} size='large' startIcon={<PlayArrowIcon />} onClick={handleToggle('play')}>
         {scienceValues.play ? 'Paused' : 'Playing'}
       </Button>
 
-      <Button value={scienceValues.eStop} variant='contained' color='warning' style={{ width: 500, height: 300 }} onClick={handleToggle('eStop')}>
+      <Button value={scienceValues.eStop} variant='contained' color={scienceValues.eStop ? 'error' : 'primary'}  style={{ width: 500, height: 300 }} onClick={handleToggle('eStop')}>
         {scienceValues.eStop ? 'Emergency Stopped' : 'Emergency Stop'}
       </Button>
     </Box>
