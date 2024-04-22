@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import { styled, useTheme } from '@mui/material/styles'
+import { CommandContext } from './contexts/CommandContext'
 
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -36,10 +37,20 @@ export default function App () {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
   const [rootPane, setRootPane] = useState({ type: 'test' })
+  const [commands, setCommands] = useState({ 
+      arm:{"speed":0,"rotunda":0,"elbow":0,"shoulder":0,"wristPitch":0,"wristRoll":0,"endEffector":0},
+      drive:{"mode":"drive","speed":0,"angle":0},
+      autonomy:{}, 
+      science:{"play":true,"eStop":false,"samplesReceived":false} 
+    })
 
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <CommandContext 
+          commands={commands}
+          setCommands={setCommands}
+        >
       <Sidebar theme={theme} open={open} width={drawerWidth} handleDrawerClose={() => { setOpen(false) }} />
       <AppBar position='fixed' open={open}>
         <Toolbar>
@@ -69,8 +80,9 @@ export default function App () {
           flexDirection: 'column'
         }}
       >
-        <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
+          <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
       </Box>
+      </CommandContext>
     </Box>
   )
 }

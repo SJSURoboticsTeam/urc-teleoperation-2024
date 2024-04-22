@@ -10,7 +10,7 @@ const panes = {
   manualInput: { title: 'Manual Input', Component: ManualInputPane },
   status: { title: 'Status', Component: StatusPane },
   vSplit: { title: 'Split Vertically', Component: (props) => (<SplitPane {...props} direction='row' />) },
-  hSplit: { title: 'Split Horizontally', Component: (props) => (<SplitPane {...props} />) }
+  hSplit: { title: 'Split Horizontally', Component: (props) => (<SplitPane {...props} />) },
 }
 
 export default panes

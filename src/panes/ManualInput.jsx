@@ -14,6 +14,7 @@ import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import { useCommands } from '../contexts/CommandContext'
 
 function TooltipButton ({ onClick, tooltipTitle, children, sx }) {
   return (
@@ -73,6 +74,7 @@ function NumericValueAdjuster ({ label, value, onValueChange, min, max }) {
 }
 
 function ArmManualInput () {
+  const [,setCommands] = useCommands()
   const controlConfigs = [
     { name: 'speed', label: 'Speed', min: 0, max: 5 },
     { name: 'rotunda', label: 'Rotunda', min: -180, max: 180 },
@@ -102,12 +104,8 @@ function ArmManualInput () {
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // TODO: connect to command server, arm endpoint
-      console.log('Sending values to backend:', controlValues)
-    }, 100)
-    return () => clearInterval(interval)
-  }, [])
+    setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, arm:{...controlValues}}))})
+  }, [setCommands, controlValues])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -128,6 +126,7 @@ function ArmManualInput () {
 }
 
 function DriveManualInput () {
+  const [,setCommands] = useCommands()
   const defaults = {
     mode: 'drive',
     speed: 0,
@@ -148,12 +147,8 @@ function DriveManualInput () {
   }
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      // TODO: connect to command server, drive endpoint
-      console.log('Sending drive values to backend:', { ...driveParams })
-    }, 100)
-    return () => clearInterval(interval)
-  }, [])
+    setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
+  }, [setCommands, driveParams])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
@@ -191,6 +186,7 @@ function DriveManualInput () {
 }
 
 function ScienceManualInput () {
+  const [,setCommands] = useCommands()
   const scienceDefault = {
     play: true,
     eStop: false,
@@ -206,6 +202,10 @@ function ScienceManualInput () {
       [toggleName]: !prevValues[toggleName]
     }))
   }
+
+  useEffect(() => {
+    setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, science:{...scienceValues}}))})
+  }, [setCommands, scienceValues])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 15, height: '90vh' }}>
