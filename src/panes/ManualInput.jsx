@@ -73,8 +73,7 @@ function NumericValueAdjuster ({ label, value, onValueChange, min, max }) {
   )
 }
 
-function ArmManualInput () {
-  const [,setCommands] = useCommands()
+function ArmManualInput ({commands, setCommands}) {
   const controlConfigs = [
     { name: 'speed', label: 'Speed', min: 0, max: 5 },
     { name: 'rotunda', label: 'Rotunda', min: -180, max: 180 },
@@ -125,8 +124,7 @@ function ArmManualInput () {
   )
 }
 
-function DriveManualInput () {
-  const [,setCommands] = useCommands()
+function DriveManualInput ({commands, setCommands}) {
   const defaults = {
     mode: 'drive',
     speed: 0,
@@ -137,7 +135,7 @@ function DriveManualInput () {
     { name: 'translate', label: 'Translate' },
     { name: 'drive', label: 'Drive' }
   ]
-  const [driveParams, setDriveParams] = useState(defaults)
+  const [driveParams, setDriveParams] = useState(commands.drive)
 
   const handleParamChange = (paramName) => (newValue) => {
     setDriveParams(prevParams => ({
@@ -150,6 +148,7 @@ function DriveManualInput () {
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
   }, [setCommands, driveParams])
 
+  console.log(driveParams)
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
       <Box sx={{ display: 'flex', flexDirection: 'row', mb: 2 }}>
@@ -185,8 +184,7 @@ function DriveManualInput () {
   )
 }
 
-function ScienceManualInput () {
-  const [,setCommands] = useCommands()
+function ScienceManualInput ({commands, setCommands}) {
   const scienceDefault = {
     play: true,
     eStop: false,
@@ -222,6 +220,7 @@ function ScienceManualInput () {
 
 export default function ManualInputPane ({ style }) {
   const [activeTab, setActiveTab] = useState(0)
+  const [commands, setCommands] = useCommands()
 
   const tabConfig = [
     { label: 'Arm', Component: ArmManualInput },
@@ -249,7 +248,7 @@ export default function ManualInputPane ({ style }) {
           <Tab key={index} label={tab.label} />
         ))}
       </Tabs>
-      {ActiveComponent ? <ActiveComponent /> : <Box>Invalid tab selected.</Box>}
+      {ActiveComponent ? <ActiveComponent key={JSON.stringify(commands)} commands={commands} setCommands={setCommands}/> : <Box>Invalid tab selected.</Box>}
     </Box>
   )
 }

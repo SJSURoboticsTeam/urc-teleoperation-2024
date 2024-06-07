@@ -1,141 +1,152 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import { ArmCommandDTO, DriveCommandDTO } from '../../util/command-dto';
-import { driveStringFormat, armStringFormat } from '../../util/command-formats';
-import { LogitechExtreme, Xbox360 } from '../../controllers/arm/gamepad';
-import { useGamepads } from 'react-gamepads';
-import { useCommands } from '../contexts/CommandContext';
-// IMPORT COMMANDS
-import DriveController from '../../controllers/drive/controller';
-import Wifi from '../Wifi';
+import { useEffect, useRef, useState } from "react";
+import { useCommands } from "../contexts/CommandContext";
 
 export default function ControllerConfiguration() {
-//   const driveCommands = useRef<string>(driveStringFormat(DEFAULT_DRIVE_COMMANDS));
-//   const armCommands = useRef<string>(armStringFormat(DEFAULT_ARM_COMMANDS));
   const [gamepads, setGamepads] = useState([]);
-  const [modes, setModes] = useState([]);
-  const [isWifiConnected, setIsWifiConnected] = useState(Array(gamepads.length).fill(false)); //used to disable the select to avoid abrupt switching
-  const [commands, setCommands] = useContext()
+  const [commands, setCommands] = useCommands();
 
-//   const driveCommandsRef = useRef<DriveCommandDTO>(DEFAULT_DRIVE_COMMANDS);
-//   const armCommandsRef = useRef<ArmCommandDTO>(DEFAULT_ARM_COMMANDS);
-//   const [status, setStatus] = useState<ArmCommandDTO | DriveCommandDTO>();
-  const gamepadsRef = useRef(gamepads);
+  //   const commsRef = useRef({
+  //     heartbeat_count: 0,
+  //     is_operational: 1,
+  //     drive_mode: "D",
+  //     wheel_orientation: 0,
+  //     speed: 0,
+  //     angle: 0,
+  //   });
 
-  useGamepads((gamepads) => {
-    if (gamepads[0]) {
-      const connectedGamepads = Object.values(gamepads).filter((gamepad) => gamepad && gamepad.connected);
-      setGamepads(connectedGamepads);
-    }
+//   let comms = {
+//     arm: {
+//       speed: 0,
+//       rotunda: 0,
+//       elbow: 0,
+//       shoulder: 0,
+//       wristPitch: 0,
+//       wristRoll: 0,
+//       endEffector: 0,
+//     },
+//     drive: { mode: "drive", speed: 0, angle: 0 },
+//     autonomy: {},
+//     science: { play: true, eStop: false, samplesReceived: false },
+//   };
 
-  });
+  let speed = null;
+  let angle = null;
+  let enable_speed_pressed = false;
+  let spin_mode = null;
+  let translate_mode = null;
+  let drive_mode = null;
+  let wheel_orientation_0 = null;
+  let wheel_orientation_1 = null;
+  let wheel_orientation_2 = null;
+
+  let mode = "translate";
 
   useEffect(() => {
-    const updateGamepads = () => { // handles the connection of gamepads so component is rendered correctly
-      const updatedGamepads = Array.from(navigator.getGamepads()).filter((gamepad) => gamepad && gamepad.connected);
+    function updateGamepads() {
+      const updatedGamepads = Array.from(navigator.getGamepads()).filter(
+        (gamepad) => gamepad && gamepad.connected
+      );
       setGamepads(updatedGamepads);
-    };
-  
+      //   console.log(navigator.getGamepads()[0]);
+    }
+
     updateGamepads();
-  
+
     const gamepadHandler = () => {
       updateGamepads();
     };
-  
-    window.addEventListener('gamepadconnected', gamepadHandler);
-    window.addEventListener('gamepaddisconnected', gamepadHandler);
-  
+
+    window.addEventListener("gamepadconnected", gamepadHandler);
+
+    window.addEventListener("gamepaddisconnected", gamepadHandler);
+
     return () => {
-      window.removeEventListener('gamepadconnected', gamepadHandler);
-      window.removeEventListener('gamepaddisconnected', gamepadHandler);
+      window.removeEventListener("gamepaddisconnected", gamepadHandler());
+      window.removeEventListener("gamepaddisconnected", gamepadHandler());
     };
   }, []);
- 
-  useEffect(() => {
-    gamepadsRef.current = gamepads;
-  }, [gamepads]);
 
+  function controllerInput(gamepad) {
+    const gamepadId = gamepad.id.toLocaleLowerCase();
+    if (
+      gamepadId.includes("xbox") ||
+      gamepadId.includes("microsoft") ||
+      gamepadId.includes("standard gamepad")
+    ) {
+      // DRIVE CONTROLLER
+      const buttons = gamepad.buttons;
+      //   speed = buttons[1].pressed; // axes???
+      //   angle = buttons[2].pressed; // also axes???
+      //   console.log(buttons);
+      speed = -(Math.trunc(5 * gamepad.axes[1])); // -1 is full speed ahead, 1 is full speed backwards
+      angle = Math.trunc(5 * gamepad.axes[2]); // -1 is left, 1 is right
+      //   console.log("speed:" + speed + "angle: " + angle);
 
-  function updateDriveCommands(newCommands) {
-    driveCommandsRef.current = newCommands;
-    driveCommands.current= driveStringFormat(newCommands);
-  }
-
-  function updateArmCommands (newCommands) {
-    armCommandsRef.current = newCommands;
-    armCommands.current = armStringFormat(newCommands);
-  }
-
-  function getGamePad(gamepad) {
-    if (!gamepad) {
+      enable_speed_pressed = buttons[7].pressed;
+      spin_mode = buttons[2].pressed;
+      translate_mode = buttons[3].pressed;
+      drive_mode = buttons[1].pressed;
+      wheel_orientation_0 = buttons[14].pressed;
+      wheel_orientation_1 = buttons[12].pressed;
+      wheel_orientation_2 = buttons[15].pressed;
+    }
+    // else if (gamepadId.includes("logitech")) {
+    //   // figure out arm input mappings
+    // }
+    else {
+      console.log("gamepad not supported");
       return null;
     }
-    const gamePadID = gamepad.id.toLowerCase();
-    if (gamePadID.includes('xbox') || gamePadID.includes('microsoft')) {
-      return new Xbox360(gamepad);
-    } else if (gamePadID.includes('logitech')) {
-      return new LogitechExtreme(gamepad);
-    } else {
-      return null;
-    }
   }
+
+  function updateDrive() {
+    // send over to either manual input or directly to network commands???
+    if (enable_speed_pressed) {
+      // comms = {...comms, drive:{...driveParams}}
+    }
+    if (spin_mode) {
+      //   console.log("spin mode");
+      mode = "spin";
+    }
+    if (translate_mode) {
+      console.log("translate mode");
+      mode = "translate";
+    }
+    if (drive_mode) {
+      console.log("drive mode");
+      mode = "drive";
+    }
+    // stringify commands
+    setCommands((commands) => {
+      return JSON.parse(
+        JSON.stringify({ ...commands, drive: { mode, speed, angle } })
+      );
+    });
+  }
+
+  function updateArm() {}
+
+  function updateScience() {}
 
   function updateController() {
-    
-    for (let i = 0; i < gamepads.length; i++){
-      
-      if (modes[i] === 'Drive') {
-        const currentCommands = driveCommandsRef.current;
-        const newCommands = new DriveController(gamepadsRef.current[i])?.getCommands(currentCommands);
-        updateDriveCommands({...newCommands});
-      } else if (modes[i] === 'Arm') {
-          let controller = getGamePad(gamepadsRef.current[i]);
-          if (!controller) {
-            console.log('controller model not supported');
-            return armCommandsRef.current;
-          }
-          const currentCommands = armCommandsRef.current;
-          const newCommands = {
-            rotunda_angle: controller.getRotundaAngle(currentCommands),
-            shoulder_angle: controller.getShoulderAngle(currentCommands),
-            elbow_angle: controller.getElbowAngle(currentCommands),
-            wrist_roll_angle: controller.getWristRollAngle(currentCommands),
-            end_effector_angle: controller.getEndEffectorAngle(currentCommands)
-          };
-  
-          updateArmCommands({...armCommandsRef.current, ...newCommands});
-      }
-
+    for (let i = 0; i < gamepads.length; i++) {
+      //   const currentComms = comms.current;
+      //   const newComms = controllerInput(gamepads[i])?.getCommands(currentComms);
+      controllerInput(navigator.getGamepads()[i]);
+      updateDrive();
+      updateArm();
+      updateScience();
     }
   }
 
-  function updateWifiStatus(index, status) {
-    setIsWifiConnected(prev => {
-        const updatedStatus = [...prev];
-        updatedStatus[index] = status;
-        return updatedStatus;
-    });
-}
-
-  const handleModeChange = (gamepadInstance, mode) => {
-    setModes((prevModes) => {
-      const index = gamepads.findIndex((gp) => gp.id === gamepadInstance.id);
-      const updatedModes = [...prevModes];
-      if (mode === "None") {
-        updatedModes[index] = undefined;
-      } else {
-        updatedModes[index] = mode; // Update the mode
-      }
-      
-      return updatedModes;
-    });
-  };
-
-
   useEffect(() => {
-    updateController();
-  }, [modes, gamepads]);
+    const interval = setInterval(() => {
+      // if changes?
+      updateController();
+    }, 100);
 
-  
+    return () => clearInterval(interval);
+  }, [gamepads]);
 
   return (
     <div id="ov-gamepad">
@@ -143,47 +154,11 @@ export default function ControllerConfiguration() {
       <ul>
         {gamepads.map((gamepad, index) => (
           <li key={gamepad.id}>
-            <div>
-            
-              {gamepad.id.includes("Logitech") ? "Logitech" : "Xbox"}:
-            </div>
-            <div>
-              <select className="btn" 
-              onChange={(e) => handleModeChange(gamepad, e.target.value)}
-              disabled={isWifiConnected[index]}>
-                <option value="None">none</option>
-                <option value="Drive">Drive</option>
-                <option value="Arm">Arm</option>
-              </select>
-            </div>
-            
-
-            {modes[index] === "Drive" && (
-            <div>
-              <Wifi
-                commands={driveCommands}
-                setStatus={setStatus}
-                wifiConfigConnect={(status) => updateWifiStatus(index, status)}
-                endpoint="drive"
-              />
-            </div>
-          )}
-          {modes[index] === "Arm" && (
-            <div>
-              <Wifi
-                commands={armCommands}
-                setStatus={setStatus}
-                wifiConfigConnect={(status) => updateWifiStatus(index, status)}
-                endpoint="arm"
-              />
-            </div>
-          )}
+            <div>gamepad type: {gamepad.id}</div>
           </li>
         ))}
       </ul>
-      
-  
+      {/* <div>{navigator.getGamepads[0].buttons[4].pressed ? "Pressed" : "Not Pressed"}</div> */}
     </div>
-    
   );
 }
