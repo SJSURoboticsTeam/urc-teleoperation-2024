@@ -5,32 +5,26 @@ export default function ControllerConfiguration() {
   const [gamepads, setGamepads] = useState([]);
   const [commands, setCommands] = useCommands();
 
-  //   const commsRef = useRef({
-  //     heartbeat_count: 0,
-  //     is_operational: 1,
-  //     drive_mode: "D",
-  //     wheel_orientation: 0,
-  //     speed: 0,
-  //     angle: 0,
-  //   });
+  let drive = {
+    mode: "drive",
+    speed: 0,
+    angle: 0,
+  };
 
-//   let comms = {
-//     arm: {
-//       speed: 0,
-//       rotunda: 0,
-//       elbow: 0,
-//       shoulder: 0,
-//       wristPitch: 0,
-//       wristRoll: 0,
-//       endEffector: 0,
-//     },
-//     drive: { mode: "drive", speed: 0, angle: 0 },
-//     autonomy: {},
-//     science: { play: true, eStop: false, samplesReceived: false },
-//   };
+  let arm = {
+    speed: 0,
+    rotunda: 0,
+    elbow: 0,
+    shoulder: 0,
+    wristPitch: 0,
+    wristRoll: 0,
+    endEffector: 0,
+  };
 
-  let speed = null;
-  let angle = null;
+  let science = { play: true, eStop: false, samplesReceived: false };
+
+  let gamepadSpeed = null;
+  let gamepadAngle = null;
   let enable_speed_pressed = false;
   let spin_mode = null;
   let translate_mode = null;
@@ -78,8 +72,9 @@ export default function ControllerConfiguration() {
       //   speed = buttons[1].pressed; // axes???
       //   angle = buttons[2].pressed; // also axes???
       //   console.log(buttons);
-      speed = -(Math.trunc(5 * gamepad.axes[1])); // -1 is full speed ahead, 1 is full speed backwards
-      angle = Math.trunc(5 * gamepad.axes[2]); // -1 is left, 1 is right
+      gamepadSpeed = -Math.trunc(5 * gamepad.axes[1]); // -1 is full speed ahead, 1 is full speed backwards
+      //   gamepadAngle = Math.trunc(5 * gamepad.axes[2]);
+      gamepadAngle += Math.trunc(5 * gamepad.axes[2]); // -1 is left, 1 is right
       //   console.log("speed:" + speed + "angle: " + angle);
 
       enable_speed_pressed = buttons[7].pressed;
@@ -101,25 +96,32 @@ export default function ControllerConfiguration() {
 
   function updateDrive() {
     // send over to either manual input or directly to network commands???
+    let speed = 0;
+
     if (enable_speed_pressed) {
-      // comms = {...comms, drive:{...driveParams}}
+      speed = gamepadSpeed;
+    } else {
+      speed = 0;
     }
     if (spin_mode) {
-      //   console.log("spin mode");
       mode = "spin";
     }
     if (translate_mode) {
-      console.log("translate mode");
       mode = "translate";
     }
     if (drive_mode) {
-      console.log("drive mode");
       mode = "drive";
     }
+    // console.log(mode)
+    // console.log(speed)
+    // console.log(gamepadAngle)
     // stringify commands
     setCommands((commands) => {
       return JSON.parse(
-        JSON.stringify({ ...commands, drive: { mode, speed, angle } })
+        JSON.stringify({
+          ...commands,
+          drive: { mode, speed, angle: gamepadAngle },
+        })
       );
     });
   }
@@ -133,7 +135,10 @@ export default function ControllerConfiguration() {
       //   const currentComms = comms.current;
       //   const newComms = controllerInput(gamepads[i])?.getCommands(currentComms);
       controllerInput(navigator.getGamepads()[i]);
-      updateDrive();
+    //   if (enable_speed_pressed) {
+        updateDrive();
+    //   }
+
       updateArm();
       updateScience();
     }
@@ -141,7 +146,6 @@ export default function ControllerConfiguration() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      // if changes?
       updateController();
     }, 100);
 
@@ -158,7 +162,6 @@ export default function ControllerConfiguration() {
           </li>
         ))}
       </ul>
-      {/* <div>{navigator.getGamepads[0].buttons[4].pressed ? "Pressed" : "Not Pressed"}</div> */}
     </div>
   );
 }
