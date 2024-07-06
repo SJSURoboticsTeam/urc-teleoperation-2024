@@ -23,6 +23,7 @@ export default function ControllerConfiguration() {
 
   let science = { play: true, eStop: false, samplesReceived: false };
 
+  // drive stuff
   let gamepadSpeed = null;
   let gamepadAngle = null;
   let enable_speed_pressed = false;
@@ -35,13 +36,24 @@ export default function ControllerConfiguration() {
 
   let mode = "translate";
 
+  // arm stuff
+  let speed = 0;
+  let rotunda_trigger_pressed = false;
+  let rotunda_trigger = null;
+  let rotunda_angle = 0;
+  let elbow = 0;
+  let shoulder = 0;
+  let wristPitch = 0;
+  let wristRoll = 0;
+  let endEffector = 0;
+
+
   useEffect(() => {
     function updateGamepads() {
       const updatedGamepads = Array.from(navigator.getGamepads()).filter(
         (gamepad) => gamepad && gamepad.connected
       );
       setGamepads(updatedGamepads);
-      //   console.log(navigator.getGamepads()[0]);
     }
 
     updateGamepads();
@@ -69,13 +81,8 @@ export default function ControllerConfiguration() {
     ) {
       // DRIVE CONTROLLER
       const buttons = gamepad.buttons;
-      //   speed = buttons[1].pressed; // axes???
-      //   angle = buttons[2].pressed; // also axes???
-      //   console.log(buttons);
       gamepadSpeed = -Math.trunc(5 * gamepad.axes[1]); // -1 is full speed ahead, 1 is full speed backwards
-      //   gamepadAngle = Math.trunc(5 * gamepad.axes[2]);
       gamepadAngle += Math.trunc(5 * gamepad.axes[2]); // -1 is left, 1 is right
-      //   console.log("speed:" + speed + "angle: " + angle);
 
       enable_speed_pressed = buttons[7].pressed;
       spin_mode = buttons[2].pressed;
@@ -84,11 +91,24 @@ export default function ControllerConfiguration() {
       wheel_orientation_0 = buttons[14].pressed;
       wheel_orientation_1 = buttons[12].pressed;
       wheel_orientation_2 = buttons[15].pressed;
-    }
-    // else if (gamepadId.includes("logitech")) {
-    //   // figure out arm input mappings
-    // }
-    else {
+
+      updateDrive();
+    } else if (gamepadId.includes("logitech")  || gamepadId.includes("extreme")) {
+      // ARM CONTROLLER
+      const buttons = gamepad.buttons;
+      // console.log(buttons)
+      // console.log(gamepad.axes)
+
+      rotunda_trigger_pressed = buttons[0].value;
+      rotunda_trigger = gamepad.axes[5];
+      // console.log("trigger pressed: " + rotunda_trigger_pressed)
+      // console.log("angle: " + rotunda_trigger)
+      // shoulder_angle = buttons[4].value - buttons[5].value;
+      // console.log(rotunda_angle);    // what if i use axis 5 instead?
+      // console.log("shoulder is " + buttons[4].value + " - " + buttons[5].value);
+
+      updateArm();
+    } else {
       console.log("gamepad not supported");
       return null;
     }
@@ -126,7 +146,32 @@ export default function ControllerConfiguration() {
     });
   }
 
-  function updateArm() {}
+  function updateArm() {
+    // shoulder
+
+    // elbow
+    elbow = 5;
+
+    // rotunda
+    if(rotunda_trigger_pressed == 1) {
+      rotunda_angle = rotunda_trigger;
+      console.log(rotunda_angle)
+    }
+
+    console.log({
+      ...commands,
+      arm: { speed, rotunda: rotunda_angle, elbow, shoulder, wristPitch, wristRoll, endEffector},
+    })
+    //stringify commands
+    setCommands((commands) => {
+      return JSON.parse(
+        JSON.stringify({
+          ...commands,
+          arm: { speed, rotunda: rotunda_angle, elbow, shoulder, wristPitch, wristRoll, endEffector},
+        })
+      );
+    });
+  }
 
   function updateScience() {}
 
@@ -135,11 +180,11 @@ export default function ControllerConfiguration() {
       //   const currentComms = comms.current;
       //   const newComms = controllerInput(gamepads[i])?.getCommands(currentComms);
       controllerInput(navigator.getGamepads()[i]);
-    //   if (enable_speed_pressed) {
-        updateDrive();
-    //   }
+      //   if (enable_speed_pressed) {
+      // updateDrive();
+      // //   }
 
-      updateArm();
+      // updateArm();
       updateScience();
     }
   }

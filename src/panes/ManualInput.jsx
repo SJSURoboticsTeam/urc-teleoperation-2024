@@ -89,7 +89,7 @@ function ArmManualInput ({commands, setCommands}) {
     return acc
   }, {})
 
-  const [controlValues, setControlValues] = useState(initialControlValues)
+  const [controlValues, setControlValues] = useState(commands.arm)
 
   const handleControlChange = (controlName) => (newValue) => {
     setControlValues(prevValues => ({
@@ -105,6 +105,8 @@ function ArmManualInput ({commands, setCommands}) {
   useEffect(() => {
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, arm:{...controlValues}}))})
   }, [setCommands, controlValues])
+
+  console.log(controlValues)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
