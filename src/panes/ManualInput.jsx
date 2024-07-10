@@ -106,7 +106,7 @@ function ArmManualInput ({commands, setCommands}) {
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, arm:{...controlValues}}))})
   }, [setCommands, controlValues])
 
-  console.log(controlValues)
+  // console.log(controlValues)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -150,7 +150,7 @@ function DriveManualInput ({commands, setCommands}) {
     setCommands((commands) => {return JSON.parse(JSON.stringify({...commands, drive:{...driveParams}}))})
   }, [setCommands, driveParams])
 
-  console.log(driveParams)
+  // console.log(driveParams)
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: 1 }}>
       <Box sx={{ display: 'flex', flexDirection: 'row', mb: 2 }}>

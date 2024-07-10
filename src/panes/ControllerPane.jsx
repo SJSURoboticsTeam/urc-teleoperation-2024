@@ -1,27 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useCommands } from "../contexts/CommandContext";
 
+import ArmGamepad from "../controllers/gamepad"
+
 export default function ControllerConfiguration() {
   const [gamepads, setGamepads] = useState([]);
   const [commands, setCommands] = useCommands();
-
-  let drive = {
-    mode: "drive",
-    speed: 0,
-    angle: 0,
-  };
-
-  let arm = {
-    speed: 0,
-    rotunda: 0,
-    elbow: 0,
-    shoulder: 0,
-    wristPitch: 0,
-    wristRoll: 0,
-    endEffector: 0,
-  };
-
-  let science = { play: true, eStop: false, samplesReceived: false };
 
   // drive stuff
   let gamepadSpeed = null;
@@ -36,17 +20,14 @@ export default function ControllerConfiguration() {
 
   let mode = "translate";
 
-  // arm stuff
-  let speed = 0;
-  let rotunda_trigger_pressed = false;
-  let rotunda_trigger = null;
-  let rotunda_angle = 0;
-  let elbow = 0;
-  let shoulder = 0;
-  let wristPitch = 0;
-  let wristRoll = 0;
-  let endEffector = 0;
-
+  // Arm Initialization
+  let speed = commands.arm.speed;
+  let rotunda = commands.arm.rotunda;
+  let elbow = commands.arm.elbow;
+  let shoulder = commands.arm.shoulder;
+  let wristPitch = commands.arm.wristPitch;
+  let wristRoll = commands.arm.wristRoll;
+  let endEffector = commands.arm.endEffector;
 
   useEffect(() => {
     function updateGamepads() {
@@ -94,20 +75,26 @@ export default function ControllerConfiguration() {
 
       updateDrive();
     } else if (gamepadId.includes("logitech")  || gamepadId.includes("extreme")) {
-      // ARM CONTROLLER
-      const buttons = gamepad.buttons;
-      // console.log(buttons)
-      // console.log(gamepad.axes)
+      // updateArm(gamepad);
+      const armController = new ArmGamepad(gamepad);
+      rotunda = armController.getRotundaAngle(rotunda);
+      elbow = armController.getElbowAngle(elbow);
+      shoulder = armController.getShoulderAngle(shoulder);
+      wristPitch = armController.getWristPitchAngle(wristPitch);
+      wristRoll = armController.getWristRollAngle(wristRoll);
+      endEffector = armController.getEndEffectorAngle(endEffector);
 
-      rotunda_trigger_pressed = buttons[0].value;
-      rotunda_trigger = gamepad.axes[5];
-      // console.log("trigger pressed: " + rotunda_trigger_pressed)
-      // console.log("angle: " + rotunda_trigger)
-      // shoulder_angle = buttons[4].value - buttons[5].value;
-      // console.log(rotunda_angle);    // what if i use axis 5 instead?
-      // console.log("shoulder is " + buttons[4].value + " - " + buttons[5].value);
+      console.log(rotunda)
 
-      updateArm();
+      //stringify commands
+      setCommands((commands) => {
+        return JSON.parse(
+          JSON.stringify({
+            ...commands,
+            arm: { speed, rotunda, elbow, shoulder, wristPitch, wristRoll, endEffector},
+          })
+        );
+      });
     } else {
       console.log("gamepad not supported");
       return null;
@@ -132,10 +119,7 @@ export default function ControllerConfiguration() {
     if (drive_mode) {
       mode = "drive";
     }
-    // console.log(mode)
-    // console.log(speed)
-    // console.log(gamepadAngle)
-    // stringify commands
+
     setCommands((commands) => {
       return JSON.parse(
         JSON.stringify({
@@ -146,31 +130,26 @@ export default function ControllerConfiguration() {
     });
   }
 
-  function updateArm() {
-    // shoulder
+  function updateArm(gamepad) {
+    // const armController = new ArmGamepad(gamepad);
+    // rotunda = armController.getRotundaAngle(rotunda);
+    // elbow = armController.getElbowAngle(elbow);
+    // shoulder = armController.getShoulderAngle(shoulder);
+    // wristPitch = armController.getWristPitchAngle(wristPitch);
+    // wristRoll = armController.getWristRollAngle(wristRoll);
+    // endEffector = armController.getEndEffectorAngle(endEffector);
 
-    // elbow
-    elbow = 5;
+    // console.log(rotunda)
 
-    // rotunda
-    if(rotunda_trigger_pressed == 1) {
-      rotunda_angle = rotunda_trigger;
-      console.log(rotunda_angle)
-    }
-
-    console.log({
-      ...commands,
-      arm: { speed, rotunda: rotunda_angle, elbow, shoulder, wristPitch, wristRoll, endEffector},
-    })
-    //stringify commands
-    setCommands((commands) => {
-      return JSON.parse(
-        JSON.stringify({
-          ...commands,
-          arm: { speed, rotunda: rotunda_angle, elbow, shoulder, wristPitch, wristRoll, endEffector},
-        })
-      );
-    });
+    // //stringify commands
+    // setCommands((commands) => {
+    //   return JSON.parse(
+    //     JSON.stringify({
+    //       ...commands,
+    //       arm: { speed, rotunda, elbow, shoulder, wristPitch, wristRoll, endEffector},
+    //     })
+    //   );
+    // });
   }
 
   function updateScience() {}
