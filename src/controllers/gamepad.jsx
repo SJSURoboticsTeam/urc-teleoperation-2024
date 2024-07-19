@@ -1,5 +1,5 @@
-const MIN_ARM_SPEED = 1;
-const MAX_ARM_SPEED = 5;
+const MAX_DRIVE_ANGLE = 12;
+const MAX_TRANSLATE_ANGLE = 45;
 
 const MIN_ROTUNDA_ANGLE = -90;
 const MAX_ROTUNDA_ANGLE = 90;
@@ -23,6 +23,18 @@ function clamp(num, min, max) {
     return Math.min(Math.max(num, min), max);
 }
 
+let driveMapping = {
+    speed : 1,                  // left stick up/down
+    angle : 2,                  // right stick left/right
+    enable_speed : 7,           // right bumper
+    spin_mode : 2,              // X
+    translate_mode : 3,         // Y
+    drive_mode : 1,             // B
+    wheel_orientation_0 : 14,   // D-Pad Left
+    wheel_orientation_1 : 12,   // D-Pad Up
+    wheel_orientation_2 : 15,   // D-Pad Right
+}
+
 let armMapping = {
     joystickVertical: 1,
     thumbJoystickVertical: 9,
@@ -37,7 +49,56 @@ let armMapping = {
     button6: 5,
 }
 
-export default class ArmGamepad {
+class DriveGamepad {
+    constructor(gamepad) {
+        this.gamepad = gamepad;
+    }
+
+    getMode(currentMode) {
+        let mode = currentMode;
+        const spin_mode = this.gamepad.buttons[2].pressed;
+        const translate_mode = this.gamepad.buttons[3].pressed;
+        const drive_mode = this.gamepad.buttons[1].pressed;
+
+        if (spin_mode) {
+            mode = "spin"
+        } else if (translate_mode) {
+            mode = "translate"
+        } else if (drive_mode) {
+            mode = "drive"
+        } else {
+            mode = currentMode
+        }
+        return mode;
+    }
+    
+    getSpeed(currentSpeed) {
+        const throttleSpeed = parseInt((this.gamepad?.axes[driveMapping.speed] * -20).toFixed(0)) * 5;
+        const speed = this.gamepad?.buttons[driveMapping.enable_speed].pressed ? throttleSpeed : 0;
+        return speed;
+    }
+
+    getAngle(currentMode) {
+        let angle = 0;
+        switch (currentMode) {
+            case 'spin':
+                angle = 0;
+                return angle;
+            case 'translate':
+                angle = parseInt((this.gamepad?.axes[driveMapping.angle] * MAX_TRANSLATE_ANGLE).toFixed(0));
+                return angle;
+            case 'drive':
+                angle = parseInt((this.gamepad?.axes[driveMapping.angle] * MAX_DRIVE_ANGLE).toFixed(0));
+                return angle;
+            default:
+                angle = 0;
+                return angle;
+        }
+    }
+    
+}
+
+class ArmGamepad {
     constructor(gamepad) {
         this.gamepad = gamepad;
     }
@@ -106,3 +167,5 @@ export default class ArmGamepad {
         return input;
     }
 }
+
+export { DriveGamepad, ArmGamepad };
