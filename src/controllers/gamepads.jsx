@@ -73,7 +73,7 @@ class DriveGamepad {
     }
     
     getSpeed(currentSpeed) {
-        const throttleSpeed = parseInt((this.gamepad?.axes[driveMapping.speed] * -20).toFixed(0)) * 5;
+        const throttleSpeed = parseInt((this.gamepad?.axes[driveMapping.speed] * -10).toFixed(0)) * 5;
         const speed = this.gamepad?.buttons[driveMapping.enable_speed].pressed ? throttleSpeed : 0;
         return speed;
     }
