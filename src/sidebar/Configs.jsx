@@ -7,7 +7,7 @@ import { Button, Input } from '@mui/material'
 export default function Configs() {
     const [commands] = useCommands()
     const [isConnected, setIsConnected] = useState(false)
-    const [serverAddress, setServerAddress] = useState("http://localhost:5000/commands")
+    const [serverAddress, setServerAddress] = useState("http://localhost:4000/commands")
 
     const setStatus = (status) => {
         // console.log(status)
