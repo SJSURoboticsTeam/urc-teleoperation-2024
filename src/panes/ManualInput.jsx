@@ -89,7 +89,7 @@ function ArmManualInput () {
     acc[control.name] = 0
     return acc
   }, {})
-
+  
   const [controlValues, setControlValues] = useState(initialControlValues)
 
   const handleControlChange = (controlName) => (newValue) => {
