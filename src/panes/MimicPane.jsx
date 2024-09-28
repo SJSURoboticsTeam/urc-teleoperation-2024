@@ -52,22 +52,29 @@ export default function MimicPane({style}) {
     }
 
     const readSerialData = async () => {
-        
         if (serialPort) {
+            
             const reader = serialPort.readable.getReader();
             const textDecoder = new TextDecoder('utf-8')
             
             try {
-                
-                const{value, done} = await reader.read();
-                const armCommands = Json.parse(textDecoder.decode(value))
-                
-              } catch (error) {
+                let command = ""
+                while (true) {
+                    const{value, done} = await reader.read();
+                    command += textDecoder.decode(value)
+                    if (command.includes("}"))
+                        break;
+                }
 
-              } finally {
+                command = JSON.parse(command)
+                console.log(command)
+                
+            } catch (error) {
+                
+            } finally {
                 reader.releaseLock()
-              }
-              setTimeout(readSerialData,100)
+            }
+            setTimeout(readSerialData,100)
         }
         
     }
