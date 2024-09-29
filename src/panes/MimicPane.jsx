@@ -1,76 +1,69 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import TextField from '@mui/material/TextField'
 import { useCommands } from '../contexts/CommandContext'
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box'
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-
-
-
 
 
 
 export default function MimicPane({style}) {
 
     const [commands,setCommands] = useCommands()
-    const [serialPort, setSerialPort] = useState(null)
-
-    const armControlConfigs = [
-        { name: 'speed', label: 'Speed', min: 0, max: 5 },
-        { name: 'rotunda', label: 'Rotunda', min: -180, max: 180 },
-        { name: 'elbow', label: 'Elbow', min: -75, max: 90 },
-        { name: 'shoulder', label: 'Shoulder', min: -45, max: 90 },
-        { name: 'wristPitch', label: 'Wrist Pitch', min: -90, max: 90 },
-        { name: 'wristRoll', label: 'Wrist Roll', min: -180, max: 180 },
-        { name: 'endEffector', label: 'End Effector', min: 0, max: 90 }
-    ]
-
-    
+    const portRef = useRef(null)
+    const readSerial = useRef(true)
 
     const getSerialPort = () => {
+
+        console.log("hmmm")
         navigator.serial.requestPort()
             .then((port) => {
                 port.open({baudRate: 9600}).then(() => {
                     
                     
                     port.addEventListener('disconnect', () => {
-                        setSerialPort(null)
+                        portRef.current = null
                     })
                     
-                    setSerialPort(port)
+                    portRef.current = port
+                    readSerialData()
                 })
-
-                
             })
-            .catch((e) => {
-                
+            .catch((error) => {
+                console.log(error)
             });
     }
 
     const readSerialData = async () => {
-        if (serialPort) {
-            
-            const reader = serialPort.readable.getReader();
+        if (portRef.current && readSerial.current) {
+            const reader = portRef.current.readable.getReader();
             const textDecoder = new TextDecoder('utf-8')
-            
             try {
-                let command = ""
-                while (true) {
+ 
+                let serialInput = ""
+                while (!serialInput.includes("}")) {
                     const{value, done} = await reader.read();
-                    command += textDecoder.decode(value)
-                    if (command.includes("}"))
-                        break;
+                    serialInput += textDecoder.decode(value)
                 }
 
-                command = JSON.parse(command)
-                console.log(command)
+                let armCommand = JSON.parse(serialInput)
+            
+                setCommands((commands) => {
+                    let newCommands = {...commands}
+                    newCommands['arm']['speed'] = armCommand['speed']
+                    newCommands['arm']['rotunda'] = armCommand['angles'][0]
+                    newCommands['arm']['shoulder'] = armCommand['angles'][1]
+                    newCommands['arm']['elbow'] = armCommand['angles'][2]
+                    newCommands['arm']['wristPitch'] = armCommand['angles'][3]
+                    newCommands['arm']['wristRoll'] = armCommand['angles'][4]
+                    newCommands['arm']['endEffector'] = armCommand['angles'][5]
+                    //angles: [$ROTUNDA, $SHOULDER, $ELBOW, $WRIST_PITCH, $WRIST_ROLL, $END_EFFECTOR]
+                    return newCommands
+                })
                 
             } catch (error) {
-                
+                console.log(error)
+
             } finally {
                 reader.releaseLock()
             }
@@ -78,16 +71,39 @@ export default function MimicPane({style}) {
         }
         
     }
-
+    const wait = (ms) => {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    };
+    
     useEffect(() => {
-        readSerialData()
-    }, [serialPort])
+        readSerial.current = true
+        return async () => {
+            readSerial.current = false
+            if (portRef.current) {
+                while (portRef.current.readable.locked) {await wait(0)}
+                portRef.current.close()
+                portRef.current = null
+            }
+        }
+    },[])
 
     return (
         <Box style={style}>
             <Button onClick={getSerialPort}>Connect</Button>
-            
 
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2}}>
+                {Object.keys(commands['arm']).map(key => (
+                    <TextField
+                        id="filled-read-only-input"
+                        label={key}
+                        value={commands['arm'][key]}
+                        InputProps={{
+                            readOnly: true,
+                        }}
+                    />
+                ))}
+            </Box>
+            
         </Box>
     )
 }
