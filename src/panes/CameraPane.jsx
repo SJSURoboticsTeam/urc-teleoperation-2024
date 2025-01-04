@@ -6,14 +6,19 @@ import MenuItem from '@mui/material/MenuItem'
 export default function CameraPane () {
   // TODO: replace with context provider and hooks model
   const cameras = [
-    { name: 'Chassis Cam', url: 'https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8MTYlM0E5fGVufDB8fDB8fHww', ratio: 1000 / 563 },
-    { name: 'Mast Cam', url: 'https://www.sjsurobotics.org/assets/img/gallery/current-team.jpeg', ratio: 2798 / 1573 },
-    { name: 'Arm Cam', url: 'http://192.168.1.203:8081/', ratio: 16 / 9 }]
+    { name: 'Test', url: 'https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8MTYlM0E5fGVufDB8fDB8fHww', ratio: 1000 / 563 },
+    { name: 'Mast Cam', url: 'http://192.168.1.204:8081/', ratio: 16 / 9  },
+    { name: 'Under Chasis Cam', url: 'http://192.168.1.201:8081/', ratio: 16 / 9 },
+    { name: 'Front Left Cam', url: 'http://192.168.1.202:8081/', ratio: 16 / 9 },
+    { name: 'Front Right Cam', url: 'http://192.168.1.203:8081/', ratio: 16 / 9 },
+
+  ]
   const [currentCamera, setCurrentCamera] = useState(0)
   const containerRef = useRef(null)
 
   const [anchorPosition, setAnchorPosition] = useState(null)
   const open = Boolean(anchorPosition)
+  
   const handleClick = (e) => {
     e.preventDefault()
     setAnchorPosition({ left: e.clientX, top: e.clientY })
@@ -45,8 +50,11 @@ export default function CameraPane () {
         alignItems: 'center'
       }}
     >
+      <div style={{backgroundColor: 'white', position: 'relative', zIndex:5}}>{cameras[currentCamera]['name']}</div>
+
+      
       <img
-        style={{ ...imageStyle, objectFit: 'contain' }}
+        style={{ ...imageStyle, objectFit: 'contain', position: 'absolute', zIndex: 1}}
         alt='Video Feed.'
         src={cameras[currentCamera].url}
         onContextMenu={handleClick}
@@ -60,6 +68,8 @@ export default function CameraPane () {
       >
         {cameras.map((camera, index) => (<MenuItem key={`${camera.name}-${index}`} onClick={() => { setCurrentCamera(index); setAnchorPosition(null) }}>{camera.name}</MenuItem>))}
       </Menu>
+
+    
     </Box>
   )
 }
