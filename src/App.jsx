@@ -38,7 +38,7 @@ export default function App () {
   const [open, setOpen] = useState(false)
   const [rootPane, setRootPane] = useState({ type: 'test' })
   const [commands, setCommands] = useState({ 
-      arm:{"speed":0,"rotunda":0,"elbow":0,"shoulder":0,"wristPitch":0,"wristRoll":0,"endEffector":0},
+      arm:{"base":0,"shoulder":0,"elbow":0,"roll":0,"pitch":0,"yaw":0,"endEff":0},
       drive:{"mode":"drive","speed":0,"angle":0},
       autonomy:{}, 
       science:{"play":true,"eStop":false,"samplesReceived":false} 

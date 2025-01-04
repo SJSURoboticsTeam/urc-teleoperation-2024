@@ -8,7 +8,8 @@ const armMap = {
     "elbow": "t1144",
     "roll": "t1154",
     "pitch": "t1164",
-    "yaw": "t1174"
+    "yaw": "t1174",
+    "endEff": "t1184"
 }
 
 // Converts user input stored in arm commands context into CAN frames
