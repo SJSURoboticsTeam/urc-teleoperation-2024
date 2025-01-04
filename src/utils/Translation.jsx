@@ -1,32 +1,40 @@
-// arm
-// JSON to CAN binary
-// read in JSON from frontend
-// { name: 'speed', label: 'Speed', min: 0, max: 5 },
-// { name: 'rotunda', label: 'Rotunda', min: -180, max: 180 },
-// { name: 'elbow', label: 'Elbow', min: -75, max: 90 },
-// { name: 'shoulder', label: 'Shoulder', min: -45, max: 90 },
-// { name: 'wristPitch', label: 'Wrist Pitch', min: -90, max: 90 },
-// { name: 'wristRoll', label: 'Wrist Roll', min: -180, max: 180 },
-// { name: 'endEffector', label: 'End Effector', min: 0, max: 90 }
-
-// t standard can message command
-// iii hexadecimal message id
-// l length of message
-// dd 2 chars per each hex value in the payload
-let payload = "t";
 
 /* arm formatting
-    speed: 0,
-    rotunda: 90,
-    elbow: 0,
-    shoulder: 0,
-    wristPitch: 0,
-    wristRoll: 0,
-    endEffector: 0
+    base
+    shoulder
+    elbow
+    roll
+    pitch
+    yaw
 */
 
+// arm default context set in App.jsx 
+// arm:{"speed":0,"rotunda":0,"elbow":0,"shoulder":0,"wristPitch":0,"wristRoll":0,"endEffector":0}
+const armMap = {
+    "base": "t1124",
+    "shoulder": "t1134",
+    "elbow": "t1144",
+    "roll": "t1154",
+    "pitch": "t1164",
+    "yaw": "t1174"
+}
+
 function armToCan(arm) {
-    
+    const armMessages = [];
+    for (let key in arm) {
+        let payload = armMap[key];
+        payload += arm[key].toString(16).padStart(4, "0");
+        armMessages.push(payload);
+    }
+    return armMessages;
+}
+
+function homeArm() {
+
+}
+
+function keyBoardType() {
+
 }
 
 const driveMap = {
@@ -71,6 +79,14 @@ function driveToCan(drive) {
     let spinOffset = driveMap["spinOffset"];
 
     return driveMessages
+}
+
+function homeDrive() {
+
+}
+
+function spinModeOffset() {
+
 }
 
 // science
