@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Socket.IO Test</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const socket = io("http://localhost:4000");
+
+      socket.on("connect", () => {
+        document.getElementById("status").innerText = `Connected: ${socket.id}`;
+      });
+
+      socket.on("disconnect", () => {
+        document.getElementById("status").innerText = `Disconnected`;
+      });
+
+      document.getElementById("postCommands").addEventListener("click", () => {
+        const heartbeatCount = document.getElementById("heartbeatCount").value;
+        const isOperational = document.getElementById("isOperational").value;
+        const commands = { heartbeat_count: parseInt(heartbeatCount), is_operational: parseInt(isOperational) };
+        socket.emit("post commands", commands);
+      });
+
+      document.getElementById("getCommands").addEventListener("click", () => {
+        socket.emit("get commands");
+      });
+
+      socket.on("commands", (data) => {
+        document.getElementById("commandsData").innerText = JSON.stringify(data, null, 2);
+      });
+
+      document.getElementById("postDrive").addEventListener("click", () => {
+        const speed = document.getElementById("speed").value;
+        const direction = document.getElementById("direction").value;
+        const drive = { speed: parseInt(speed), direction: direction };
+        socket.emit("post drive", drive);
+      });
+
+      document.getElementById("getDrive").addEventListener("click", () => {
+        socket.emit("get drive");
+      });
+
+      socket.on("drive", (data) => {
+        document.getElementById("driveData").innerText = JSON.stringify(data, null, 2);
+      });
+    });
+  </script>
+</head>
+<body>
+  <h1>Socket.IO Test</h1>
+  <p id="status">Connecting...</p>
+  
+  <h2>Commands</h2>
+  <label for="heartbeatCount">Heartbeat Count:</label>
+  <input type="number" id="heartbeatCount" value="3">
+  <label for="isOperational">Is Operational:</label>
+  <input type="number" id="isOperational" value="1">
+  <button id="postCommands">Post Commands</button>
+  <button id="getCommands">Get Commands</button>
+  <pre id="commandsData"></pre>
+  
+  <h2>Drive</h2>
+  <label for="speed">Speed:</label>
+  <input type="number" id="speed" value="10">
+  <label for="direction">Direction:</label>
+  <input type="text" id="direction" value="north">
+  <button id="postDrive">Post Drive</button>
+  <button id="getDrive">Get Drive</button>
+  <pre id="driveData"></pre>
+</body>
+</html>
