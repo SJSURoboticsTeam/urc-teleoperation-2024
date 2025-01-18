@@ -120,8 +120,14 @@ function ArmManualInput ({commands, setCommands}) {
           max={control.max}
         />
       ))}
-      <Button variant='contained' onClick={resetControlValues}>Reset All</Button>
-
+      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Button variant="contained" onClick={resetControlValues}>
+          Reset All
+        </Button>
+        <Button variant="contained" onClick={resetControlValues}>
+        Home
+        </Button>
+      </Box>
     </Box>
   )
 }
@@ -181,7 +187,14 @@ function DriveManualInput ({commands, setCommands}) {
         min={-180}
         max={180}
       />
-      <Button variant='contained' onClick={() => setDriveParams(defaults)}>Reset All</Button>
+      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Button variant="contained" onClick={() => setDriveParams(defaults)}>
+          Reset All
+         </Button>
+        <Button variant="contained" onClick={() => setDriveParams(defaults)}>
+          Home
+        </Button>
+      </Box>
     </Box>
   )
 }
