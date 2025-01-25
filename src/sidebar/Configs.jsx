@@ -6,11 +6,6 @@ import { Button, Input } from '@mui/material'
 
 import { io } from 'socket.io-client';
 
-// export const socket = io(serverAddress, {
-//     autoConnect: false
-// });
-// const socket = io("https://server-domain.com");
-
 export default function Configs() {
     const [commands] = useCommands()
     const [isConnected, setIsConnected] = useState(false)
