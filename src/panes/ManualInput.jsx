@@ -75,13 +75,13 @@ function NumericValueAdjuster ({ label, value, onValueChange, min, max }) {
 
 function ArmManualInput ({commands, setCommands}) {
   const controlConfigs = [
-    { name: 'speed', label: 'Speed', min: 0, max: 5 },
-    { name: 'rotunda', label: 'Rotunda', min: -180, max: 180 },
+    { name: 'base', label: 'Base', min: 0, max: 5 },
+    { name: 'shoulder', label: 'Shoulder', min: -180, max: 180 },
     { name: 'elbow', label: 'Elbow', min: -75, max: 90 },
-    { name: 'shoulder', label: 'Shoulder', min: -45, max: 90 },
-    { name: 'wristPitch', label: 'Wrist Pitch', min: -90, max: 90 },
-    { name: 'wristRoll', label: 'Wrist Roll', min: -180, max: 180 },
-    { name: 'endEffector', label: 'End Effector', min: 0, max: 90 }
+    { name: 'roll', label: 'Wrist Roll', min: -45, max: 90 },
+    { name: 'pitch', label: 'Wrist Pitch', min: -90, max: 90 },
+    { name: 'yaw', label: 'Wrist Yaw', min: -180, max: 180 },
+    { name: 'endEff', label: 'End Effector', min: 0, max: 90 }
   ]
 
   const initialControlValues = controlConfigs.reduce((acc, control) => {
@@ -120,8 +120,14 @@ function ArmManualInput ({commands, setCommands}) {
           max={control.max}
         />
       ))}
-      <Button variant='contained' onClick={resetControlValues}>Reset All</Button>
-
+      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Button variant="contained" onClick={resetControlValues}>
+          Reset All
+        </Button>
+        <Button variant="contained" onClick={resetControlValues}>
+        Home
+        </Button>
+      </Box>
     </Box>
   )
 }
@@ -181,7 +187,14 @@ function DriveManualInput ({commands, setCommands}) {
         min={-180}
         max={180}
       />
-      <Button variant='contained' onClick={() => setDriveParams(defaults)}>Reset All</Button>
+      <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+        <Button variant="contained" onClick={() => setDriveParams(defaults)}>
+          Reset All
+         </Button>
+        <Button variant="contained" onClick={() => setDriveParams(defaults)}>
+          Home
+        </Button>
+      </Box>
     </Box>
   )
 }
