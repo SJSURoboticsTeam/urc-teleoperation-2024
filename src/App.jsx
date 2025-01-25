@@ -36,7 +36,7 @@ const AppBar = styled(MuiAppBar, {
 export default function App () {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
-  const [rootPane, setRootPane] = useState({ type: 'test' })
+  const [rootPane, setRootPane] = useState({ type: 'vSplit', children: [ { type: 'status' }, { type: 'camera'}] })
   const [commands, setCommands] = useState({ 
       arm:{"base":0,"shoulder":0,"elbow":0,"roll":0,"pitch":0,"yaw":0,"endEff":0},
       drive:{"mode":"drive","speed":0,"angle":0},

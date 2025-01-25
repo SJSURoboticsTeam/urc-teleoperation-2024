@@ -31,6 +31,7 @@ export default function ComponentPane ({ style, state, onStateChange, onClose })
         style={innerStyle}
         state={state}
         onStateChange={newState => {
+          console.log(newState)
           onStateChange(newState)
         }}
       />
