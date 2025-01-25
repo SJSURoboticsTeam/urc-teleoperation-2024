@@ -7,13 +7,19 @@ import path from "path";
 
 const port = 4000;
 const app = express();
+
+app.use(cors());
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+
 const server = createServer(app);
-// const io = new Server(server);
-const io = new Server({
-  cors: {
-    origin: "http://localhost:4000"
-  }
-})
+const io = new Server(server);
+// const io = new Server({
+//   cors: {
+//     origin: "http://localhost:4000"
+//   }
+// })
 const networkInterfaces = os.networkInterfaces();
 
 const defaultResponse = {
@@ -29,10 +35,6 @@ let armStatus = defaultResponse;
 let driveStatus = defaultResponse;
 let scienceStatus = defaultResponse;
 let autonomyStatus = defaultResponse;
-
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true }));
 
 // Serve the HTML file
 

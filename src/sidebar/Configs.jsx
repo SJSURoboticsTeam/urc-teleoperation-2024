@@ -21,19 +21,24 @@ export default function Configs() {
         console.log(status)
     }
 
-    function connect() {
-        const socket = io(serverAddress) // new socket connection
-        setSocket(socket) // set socket instance
-        socket.on('connect', () => {
-            setIsConnected(true)
-        })
-        socket.on('disconnct', () => {
-            setIsConnected(false)
-        })
-        socket.on('commands status', (data) => {
-            setStatus(JSON.stringify(data))
-        })
+    const connect = () => {
+        const connection = io(serverAddress, {transports: ['websocket'],}); // new socket connection
+        setSocket(connection) // set socket instance
     }
+
+    useEffect(() => {
+        if (socket !== null) {
+            socket.on('connect', () => {
+                setIsConnected(true)
+            })
+            socket.on('disconnct', () => {
+                setIsConnected(false)
+            })
+            socket.on('commands status', (data) => {
+                setStatus(JSON.stringify(data))
+            })
+        }
+    },[socket])
 
     function disconnect() {
         if (socket) {
