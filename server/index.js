@@ -8,7 +8,12 @@ import path from "path";
 const port = 4000;
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+// const io = new Server(server);
+const io = new Server({
+  cors: {
+    origin: "http://localhost:4000"
+  }
+})
 const networkInterfaces = os.networkInterfaces();
 
 const defaultResponse = {
@@ -28,14 +33,15 @@ let autonomyStatus = defaultResponse;
 app.use(cors());
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
+
 // Serve the HTML file
 
-var __dirname =
-  "C:/Users/themo/Documents/projects/urc-teleoperation-2024/server";
+var __dirname = ""
+  // "C:/Users/ninawang/Documents/Robotics/urc-teleoperation-2024/server";
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join("public", "index.html"));
 });
 
 io.on("connection", (socket) => {

@@ -1,31 +1,51 @@
 import Box from '@mui/material/Box'
-import axios from 'axios'
+// import axios from 'axios'
 import { useCommands } from '../contexts/CommandContext'
 import { useEffect, useState } from 'react'
 import { Button, Input } from '@mui/material'
 
+import { io } from 'socket.io-client';
+
+// export const socket = io(serverAddress, {
+//     autoConnect: false
+// });
+// const socket = io("https://server-domain.com");
+
 export default function Configs() {
     const [commands] = useCommands()
     const [isConnected, setIsConnected] = useState(false)
-    const [serverAddress, setServerAddress] = useState("http://localhost:4000/commands")
+    const [serverAddress, setServerAddress] = useState("http://localhost:4000")
+    const [socket, setSocket] = useState(null)
 
     const setStatus = (status) => {
-        // console.log(status)
+        console.log(status)
     }
 
     function connect() {
-        setIsConnected(true)
+        const socket = io(serverAddress) // new socket connection
+        setSocket(socket) // set socket instance
+        socket.on('connect', () => {
+            setIsConnected(true)
+        })
+        socket.on('disconnct', () => {
+            setIsConnected(false)
+        })
+        socket.on('commands status', (data) => {
+            setStatus(JSON.stringify(data))
+        })
     }
 
     function disconnect() {
+        if (socket) {
+            socket.disconnect()
+        }
         setIsConnected(false)
     }
 
     async function writeCommands() {
-        if (isConnected) {
+        if (isConnected && socket) {
             try {
-                const responseStatus = await axios.post(serverAddress, commands)
-                setStatus(responseStatus.data)
+                socket.emit('post commands', commands) // commands has to be formatted the way the server wants
             }
             catch (error) {
                 disconnect()
