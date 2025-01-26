@@ -1,14 +1,25 @@
 import os from "os";
-import cors from 'cors'
+import cors from "cors";
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import path from "path";
 
 const port = 4000;
 const app = express();
+
+app.use(cors());
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+const server = createServer(app);
+const io = new Server(server);
+
 const networkInterfaces = os.networkInterfaces();
 
 const defaultResponse = {
-    "heartbeat_count": 0,
-    "is_operational": 0
+  heartbeat_count: 0,
+  is_operational: 0,
 };
 
 let commands = defaultResponse;
@@ -20,120 +31,91 @@ let driveStatus = defaultResponse;
 let scienceStatus = defaultResponse;
 let autonomyStatus = defaultResponse;
 
-app.use(cors());
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true }));
+// Testing purposes
+// Serve the HTML file
+var __dirname = ""
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
-    res.send("Mission Control Web Server - Built using ExpressJS");
-})
-
-app.get("/commands", (req, res) => {
-    commandsStatus = (req.query);
-    console.log("GET /commands");
-    res.send(commands);
+  res.sendFile(path.join("public", "index.html"));
 });
 
-app.post("/commands", (req, res) => {
-    commands = (req.body);
+io.on("connection", (socket) => {
+  console.log(`User connected: ${socket.id}`);
+
+  socket.on("post commands", (data) => {
+    commands = data;
     console.log("POST /commands", commands);
-    res.send(commandsStatus);
-})
+    io.emit("commands status", commandsStatus);
+  });
 
-app.get("/drive", (req, res) => {
-    driveStatus = (req.query);
-    console.log("GET /drive");
-    res.send(commands.drive);
-});
+  socket.on("get commands", () => {
+    socket.emit("commands", commands);
+  });
 
-app.post("/drive", (req, res) => {
-    commands.drive = (req.body);
+  socket.on("post drive", (data) => {
+    commands.drive = data;
     console.log("POST /drive", commands.drive);
-    res.send(driveStatus);
-});
+    io.emit("drive status", driveStatus);
+  });
 
-app.get("/drive/status", (req, res) => {
-    console.log("GET drive/status");
-    res.json(driveStatus);
-});
+  socket.on("get drive", () => {
+    socket.emit("drive", commands.drive);
+  });
 
-app.get("/arm", (req, res) => {
-    armStatus = (req.query);
-    console.log("GET /arm");
-    res.send(commands.arm);
-});
+  socket.on("get arm", () => {
+    socket.emit("arm", commands.arm);
+  });
 
-app.post("/arm", (req, res) => {
-    commands.arm = (req.body);
+  socket.on("post arm", (data) => {
+    commands.arm = data;
     console.log("POST /arm", commands.arm);
-    res.send(armStatus);
+    io.emit("arm status", armStatus);
+  });
+
+  socket.on("get gps", () => {
+    socket.emit("gps", commands.gps);
+  });
+
+  socket.on("post gps", (data) => {
+    commands.gps = data;
+    console.log("POST /gps", commands.gps);
+    io.emit("gps status", gpsStatus);
+  });
+
+  socket.on("get science", () => {
+    socket.emit("science", commands.science);
+  });
+
+  socket.on("post science", (data) => {
+    commands.science = data;
+    console.log("POST /science", commands.science);
+    io.emit("science status", scienceStatus);
+  });
+
+  socket.on("get autonomy", () => {
+    socket.emit("autonomy", commands.autonomy);
+  });
+
+  socket.on("post autonomy", (data) => {
+    commands.autonomy = data;
+    console.log("POST /autonomy", commands.autonomy);
+    io.emit("autonomy status", autonomyStatus);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User disconnected: ${socket.id}`);
+  });
 });
 
-app.get("/arm/status", (req, res) => {
-    console.log("GET arm/status");
-    res.json(armStatus);
-});
-
-app.get("/gps", (req, res) => {
-    console.log("GET /gps");
-    gpsStatus = req.query;
-    res.send(commands.gps);
-});
-
-app.post("/gps", (req, res) => {
-    commands.gps = req.body;
-    console.log("POST /gps");
-    res.send(gpsStatus);
-});
-
-app.get("/gps/status", (req, res) => {
-    console.log("GET /gps/status");
-    res.send(gpsStatus);
-})
-
-app.get("/science", (req, res) => {
-    console.log("GET /science");
-    scienceStatus = req.query;
-    res.send(commands.science);
-})
-
-app.post("/science", (req, res) => {
-    commands.science = (req.body);
-    console.log("POST /science");
-    res.send(autonomyStatus);
-})
-
-app.get("/science/status", (req, res) => {
-    console.log("GET /science/status");
-    res.send(scienceStatus);
-})
-
-app.get("/autonomy", (req, res) => {
-    console.log("GET /autonomy");
-    autonomyStatus = req.query;
-    res.send(commands.autonomy);
-})
-
-app.post("/autonomy", (req, res) => {
-    commands.autonomy = (req.body);
-    console.log("POST /autonomy");
-    res.send(autonomyStatus);
-})
-
-app.get("/autonomy/status", (req, res) => {
-    console.log("GET /autonomy/status");
-    res.send(autonomyStatus);
-})
-
-
-app.listen(port, () => {
-    console.log(`Server: http://localhost:${port}`);
-    for (const key in networkInterfaces) {
-        const networkInterface = networkInterfaces[key];
-        for (const network of networkInterface) {
-            if (network.family === "IPv4" && !network.internal) {
-                console.log(`Network: http://${network.address}:${port}`);
-            }
-        }
+server.listen(port, () => {
+  console.log(`Server: http://localhost:${port}`);
+  for (const key in networkInterfaces) {
+    const networkInterface = networkInterfaces[key];
+    for (const network of networkInterface) {
+      if (network.family === "IPv4" && !network.internal) {
+        console.log(`Network: http://${network.address}:${port}`);
+      }
     }
+  }
 });

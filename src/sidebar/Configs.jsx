@@ -1,31 +1,63 @@
+import { armToCan, driveToCan } from '../utils/Translation.jsx'
 import Box from '@mui/material/Box'
-import axios from 'axios'
+
 import { useCommands } from '../contexts/CommandContext'
 import { useEffect, useState } from 'react'
 import { Button, Input } from '@mui/material'
+import { io } from 'socket.io-client';
 
 export default function Configs() {
     const [commands] = useCommands()
     const [isConnected, setIsConnected] = useState(false)
-    const [serverAddress, setServerAddress] = useState("http://localhost:4000/commands")
+    const [serverAddress, setServerAddress] = useState("http://localhost:4000")
+    const [socket, setSocket] = useState(null)
 
     const setStatus = (status) => {
-        // console.log(status)
+        console.log(status)
     }
 
-    function connect() {
-        setIsConnected(true)
+    const connect = () => {
+        const connection = io(serverAddress, {transports: ['websocket'],}); // new socket connection
+        setSocket(connection) // set socket instance
     }
+
+    useEffect(() => {
+        if (socket !== null) {
+            socket.on('connect', () => {
+                setIsConnected(true)
+            })
+            socket.on('disconnct', () => {
+                setIsConnected(false)
+            })
+            socket.on('commands status', (data) => {
+                setStatus(JSON.stringify(data))
+            })
+        }
+    },[socket])
 
     function disconnect() {
+        if (socket) {
+            socket.disconnect()
+        }
         setIsConnected(false)
     }
 
     async function writeCommands() {
-        if (isConnected) {
+        if (isConnected && socket) {
             try {
-                const responseStatus = await axios.post(serverAddress, commands)
-                setStatus(responseStatus.data)
+                // Translating from JSON to CAN
+                // send over an array or object of the string commands
+                let canCommands = []
+                let armCan = armToCan(commands.arm)
+                armCan.forEach(element => {
+                    canCommands.push(element)
+                });
+                let driveCan = driveToCan(commands.drive)
+                driveCan.forEach(element => {
+                    canCommands.push(element)
+                })
+                
+                socket.emit('post commands', canCommands) // commands has to be formatted the way the server wants
             }
             catch (error) {
                 disconnect()
