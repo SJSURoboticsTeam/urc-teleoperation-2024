@@ -1,9 +1,9 @@
+import { armToCan, driveToCan } from '../utils/Translation.jsx'
 import Box from '@mui/material/Box'
-// import axios from 'axios'
+
 import { useCommands } from '../contexts/CommandContext'
 import { useEffect, useState } from 'react'
 import { Button, Input } from '@mui/material'
-
 import { io } from 'socket.io-client';
 
 export default function Configs() {
@@ -45,7 +45,19 @@ export default function Configs() {
     async function writeCommands() {
         if (isConnected && socket) {
             try {
-                socket.emit('post commands', commands) // commands has to be formatted the way the server wants
+                // Translating from JSON to CAN
+                // send over an array or object of the string commands
+                let canCommands = []
+                let armCan = armToCan(commands.arm)
+                armCan.forEach(element => {
+                    canCommands.push(element)
+                });
+                let driveCan = driveToCan(commands.drive)
+                driveCan.forEach(element => {
+                    canCommands.push(element)
+                })
+                
+                socket.emit('post commands', canCommands) // commands has to be formatted the way the server wants
             }
             catch (error) {
                 disconnect()

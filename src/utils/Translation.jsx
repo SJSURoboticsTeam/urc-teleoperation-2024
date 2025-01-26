@@ -13,7 +13,7 @@ const armMap = {
 }
 
 // Converts user input stored in arm commands context into CAN frames
-function armToCan(arm) {
+export function armToCan(arm) {
     const armMessages = [];
     for (let key in arm) {
         let payload = armMap[key];
@@ -24,11 +24,11 @@ function armToCan(arm) {
     return armMessages;
 }
 
-function homeArm() {
+export function homeArm() {
     return "t1110\r";
 }
 
-function keyBoardType() {
+export function keyBoardType() {
     return "t1200\r";
 }
 
@@ -41,7 +41,7 @@ const driveMap = {
 };
 
 // Converts user input stored in drive commands context into CAN frames
-function driveToCan(drive) {
+export function driveToCan(drive) {
     // if steer mode transmit 
     const driveMessages = [];
 
@@ -67,11 +67,11 @@ function driveToCan(drive) {
     return driveMessages;
 }
 
-function homeDrive() {
+export function homeDrive() {
     return "t1060\r"
 }
 
-function spinModeOffset(x, y) {
+export function spinModeOffset(x, y) {
     let payload = "t1058";
     payload += x.toString(16).padStart(4, "0");
     payload += y.toString(16).padStart(4, "0");
