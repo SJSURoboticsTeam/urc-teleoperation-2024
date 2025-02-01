@@ -2,6 +2,7 @@ import { useState } from 'react'
 import './App.css'
 import { styled, useTheme } from '@mui/material/styles'
 import { CommandContext } from './contexts/CommandContext'
+import { LayoutContext } from './contexts/LayoutContext'
 
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -36,7 +37,7 @@ const AppBar = styled(MuiAppBar, {
 export default function App () {
   const theme = useTheme()
   const [open, setOpen] = useState(false)
-  const [rootPane, setRootPane] = useState({ type: 'vSplit', children: [ { type: 'status' }, { type: 'camera'}] })
+  const [layout, setLayout] = useState({ type: 'test' })
   const [commands, setCommands] = useState({ 
       arm:{"base":0,"shoulder":0,"elbow":0,"roll":0,"pitch":0,"yaw":0,"endEff":0},
       drive:{"mode":"drive","speed":0,"angle":0},
@@ -47,6 +48,10 @@ export default function App () {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
+      <LayoutContext
+          layout={layout}
+          setLayout={setLayout}
+          >
       <CommandContext 
           commands={commands}
           setCommands={setCommands}
@@ -80,9 +85,11 @@ export default function App () {
           flexDirection: 'column'
         }}
       >
-          <ComponentPane state={rootPane} onStateChange={setRootPane} style={{ position: 'relative', flexGrow: 1 }} />
+          {/* prop drilling a context, technical debt? */}
+          <ComponentPane state={layout} onStateChange={setLayout} style={{ position: 'relative', flexGrow: 1 }} /> 
       </Box>
       </CommandContext>
+      </LayoutContext>
     </Box>
   )
 }
