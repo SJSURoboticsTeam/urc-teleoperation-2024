@@ -3,7 +3,21 @@ import cors from "cors";
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { SerialPort } from "serialport";
 import path from "path";
+
+let ports = await SerialPort.list()
+
+const serialPath = ''
+
+ports.forEach((port) => {
+  serialPath = port.path
+})
+
+const serialPort = new SerialPort({
+  path : serialPath,
+  baudRate: 115200,
+})
 
 const port = 4000;
 const app = express();
@@ -46,6 +60,10 @@ io.on("connection", (socket) => {
   socket.on("post commands", (data) => {
     commands = data;
     console.log("POST /commands", commands);
+    let encoder = new TextEncoder();
+    data.forEach((command) => {
+      serialPort.write(encoder.encode(command));
+    })
     io.emit("commands status", commandsStatus);
   });
 
