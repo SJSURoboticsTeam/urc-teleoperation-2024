@@ -10,7 +10,7 @@ const layouts = {
 }
 
 export default function Layouts () {
-  const [setLayout] = useLayouts()
+  const [,setLayout] = useLayouts()
   
   return (
     <Box sx={{ width: 1, height: 1, position: 'relative' }}>
