@@ -7,26 +7,50 @@ import { useEffect } from 'react'
 export default function Notepad () {
   const [text, setText] = useState(' ');
   const [inputVal, setInputVal] = useState(JSON.parse(localStorage.getItem("note")) || [])
-
-  const handleSubmit=(event)=>{
+  
+  useEffect(() => {
+    setText(localStorage.getItem('notes') || ''); 
+  }, []);
+  const handleSubmit=(event)=> {
     event.preventDefault();
-    setText(inputVal);
+    if (!inputVal.trim()) return;
     console.log(inputVal)
-    localStorage.setItem('text',inputVal)
+    // let output = inputVal + "{\"\n\"}" + localStorage.getItem('text');
+    let output = inputVal + "\n" + text;
+    setText(output);
+    console.log(output)
+    localStorage.setItem('text', output)
+    setInputVal(' ');
   }
+  const clearStorage = () => {
+      localStorage.removeItem('text');
+      setText([])
+  }
+  // useEffect(()=>{
+  //   // 'text' becomes inputVal and \n 'text'
+  //   // 'text' to be inputVal
+  //   localStorage.setItem('text',inputVal);
+  // }, [inputVal]);
 
   return (
     <Box sx={{ width: 1, height: 1, position: 'relative' }}>
       <Typography>
         <form onSubmit={handleSubmit}>
           <label>
-            <input type="text"
+            <textarea 
+            name = "text"
+            rows = "5"
+            cols = "50"
             onChange = {(e) => setInputVal(e.target.value)}
-            value ={inputVal}/>
+            value ={inputVal}
+            />
           </label>
           <button type="submit">Submit</button>
+          <button type ="button"onClick = {()=>{clearStorage()}}> Clear</button>
         </form>
-        {text && <p>Your notes: {text}</p>}
+        <p>Your notes:<br/> 
+        <span dangerouslySetInnerHTML={{ __html: text.toString().replace(/\n/g, '<br />') }} /> 
+        </p>
       </Typography>
     </Box>
   )
