@@ -9,13 +9,11 @@ export default function Notepad () {
   const [inputVal, setInputVal] = useState(JSON.parse(localStorage.getItem("note")) || [])
   
   useEffect(() => {
-    setText(localStorage.getItem('notes') || ''); 
+    setText(localStorage.getItem('text') || ''); 
   }, []);
   const handleSubmit=(event)=> {
     event.preventDefault();
-    if (!inputVal.trim()) return;
     console.log(inputVal)
-    // let output = inputVal + "{\"\n\"}" + localStorage.getItem('text');
     let output = inputVal + "\n" + text;
     setText(output);
     console.log(output)
@@ -26,12 +24,6 @@ export default function Notepad () {
       localStorage.removeItem('text');
       setText([])
   }
-  // useEffect(()=>{
-  //   // 'text' becomes inputVal and \n 'text'
-  //   // 'text' to be inputVal
-  //   localStorage.setItem('text',inputVal);
-  // }, [inputVal]);
-
   return (
     <Box sx={{ width: 1, height: 1, position: 'relative' }}>
       <Typography>
@@ -49,7 +41,7 @@ export default function Notepad () {
           <button type ="button"onClick = {()=>{clearStorage()}}> Clear</button>
         </form>
         <p>Your notes:<br/> 
-        <span dangerouslySetInnerHTML={{ __html: text.toString().replace(/\n/g, '<br />') }} /> 
+        <p dangerouslySetInnerHTML={{ __html: text.toString().replace(/\n/g, '<br />') }} /> 
         </p>
       </Typography>
     </Box>
