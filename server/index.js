@@ -6,9 +6,12 @@ import { Server } from "socket.io";
 import { SerialPort } from "serialport";
 import path from "path";
 
+// const { ReadlineParser } = require('@serialport/parser-readline');
+// const { RegexParser } = require('@serialport/parser-regex');
+
 let ports = await SerialPort.list()
 
-const serialPath = ''
+let serialPath = ''
 
 ports.forEach((port) => {
   serialPath = port.path
@@ -18,6 +21,10 @@ const serialPort = new SerialPort({
   path : serialPath,
   baudRate: 115200,
 })
+// const parser = port.pipe(new ReadlineParser({ delimiter: '\r' }));
+// const parser = serialPort.pipe(new RegexParser({ regex: /[\r\a]/ })); // delimits using carriage return or bell
+// const encoder = new TextEncoder();
+// const decoder = new TextDecoder("utf-8");
 
 const port = 4000;
 const app = express();
@@ -38,7 +45,6 @@ const defaultResponse = {
 
 let commands = defaultResponse;
 let commandsStatus = defaultResponse;
-
 let gpsStatus = defaultResponse;
 let armStatus = defaultResponse;
 let driveStatus = defaultResponse;
@@ -57,12 +63,74 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
+  const encoder = new TextEncoder("utf-8");
+  const decoder = new TextDecoder("utf-8");
+
+  // TODO: actually store the data that is being read. the end is found when \r
+  // do this because, we need to read CAN commands too in a way
+  // just getting some fun little encrypted messages from controls
+  // but what device are we :sob: what id? i guess we watch out for all the error codes
+
+  // 2 - 3 CR
+  console.log("sending 3 carriage returns");
+  serialPort.write(encoder.encode('\r\r\r'));
+  // does all the serial port data get sent at once?
+  // do we have to make sure that the serialPort.readable?
+  // will read all avaialable data, should hopefully be \r\r\r
+  let readData = decoder.decode(serialPort.read());
+  if (readData.contains('\x07')) {
+    console.log("Serial CAN responded with an error!!!");
+    console.log("Error clearing serial buffer");
+    return;
+  }
+  console.log(readData);
+
+  // V\r
+  console.log("sending version command");
+  serialPort.write(encoder.encode('V\r'));
+  // hopefully Vhhss format
+  readData = decoder.decode(serialPort.read());
+  if (readData.contains('\x07')) {
+    console.log("Serial CAN responded with an error!!!");
+    console.log("version error");
+  }
+  console.log(readData);
+
+  // Sn[CR] CAN bitrate
+  const bitrate = 'S8\r';
+  console.log("Setting CAN bitrate: ", bitrate)
+  serialPort.write(encoder.encode(bitrate));
+  // returns \r
+  readData = decoder.decode(serialPort.read());
+  if (readData.contains('\x07')) {
+    console.log("Serial CAN responded with an error!!!");
+    console.log("can bitrate error");
+  }
+  console.log(readData);
+
+  // Open CAN channel command
+  console.log("Opening CAN channel");
+  serialPort.write(encoder.encode('O\r'))
+  readData = decoder.decode(serialPort.read());
+  if (readData.contains('\x07')) {
+    console.log("Serial CAN responded with an error!!!");
+    console.log("opening cAN channel error");
+  }
+  console.log(readData);
+
+
   socket.on("post commands", (data) => {
     commands = data;
     console.log("POST /commands", commands);
-    let encoder = new TextEncoder();
+    // let encoder = new TextEncoder();
     data.forEach((command) => {
+      console.log("CAN posting command");
       serialPort.write(encoder.encode(command));
+      readData = decoder.decode(serialPort.read());
+      if (readData.contains('\x07')) {
+        console.log("error writing command into CAN");
+      }
+      console.log(readData);
     })
     io.emit("commands status", commandsStatus);
   });
