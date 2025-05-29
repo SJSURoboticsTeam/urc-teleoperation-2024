@@ -50,7 +50,7 @@ export function driveToCan(drive) {
     if (driveMap[drive.mode]) { // should be spin, drive, translate
         mode += driveMap[drive.mode];
         mode += "\r";
-        console.log(mode);
+        console.log(drive.mode + ": " + mode);
     } else {
         console.log("uh oh mode wrong");
     }

@@ -72,7 +72,7 @@ export default function Configs() {
             if (isConnected) {
                 writeCommands()
             }
-        }, 200)
+        }, 2000)
         return () => clearInterval(writeInterval)
     }, [isConnected, commands])
 
